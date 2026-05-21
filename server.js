@@ -12,100 +12,88 @@ const httpServer = createServer(app);
 const wss = new WebSocketServer({ server: httpServer });
 
 // ─────────────────────────────────────────────
-// JAMAICA PARISH NODE DEFINITIONS
-// Real parishes with coordinates and population data
+// REALISTIC JAMAICAN GEOGRAPHY & POLITICS
+// Grouped by the 3 Counties: Cornwall, Middlesex, Surrey
+// Controlled by local municipal majorities: JLP or PNP
 // ─────────────────────────────────────────────
 const PARISHES = {
+  // --- SURREY COUNTY (East) ---
   kingston: {
-    id: 'kingston', name: 'Kingston', region: 'southeast',
+    id: 'kingston', name: 'Kingston', county: 'surrey', region: 'southeast',
     population: 96052, lat: 17.9714, lng: -76.7936,
-    isCapital: true, elevation: 5, coastalRisk: 'high'
+    isCapital: true, elevation: 5, coastalRisk: 'high', politicalControl: 'PNP'
   },
   stAndrew: {
-    id: 'stAndrew', name: 'St. Andrew', region: 'southeast',
+    id: 'stAndrew', name: 'St. Andrew', county: 'surrey', region: 'southeast',
     population: 573369, lat: 18.0747, lng: -76.7983,
-    isCapital: false, elevation: 180, coastalRisk: 'medium'
+    isCapital: false, elevation: 180, coastalRisk: 'medium', politicalControl: 'JLP'
   },
   stThomas: {
-    id: 'stThomas', name: 'St. Thomas', region: 'east',
+    id: 'stThomas', name: 'St. Thomas', county: 'surrey', region: 'east',
     population: 94108, lat: 17.9840, lng: -76.3405,
-    isCapital: false, elevation: 40, coastalRisk: 'high'
+    isCapital: false, elevation: 40, coastalRisk: 'high', politicalControl: 'JLP'
   },
   portland: {
-    id: 'portland', name: 'Portland', region: 'northeast',
+    id: 'portland', name: 'Portland', county: 'surrey', region: 'northeast',
     population: 81553, lat: 18.1759, lng: -76.4545,
-    isCapital: false, elevation: 350, coastalRisk: 'medium'
+    isCapital: false, elevation: 350, coastalRisk: 'medium', politicalControl: 'PNP'
   },
+
+  // --- MIDDLESEX COUNTY (Central) ---
   stMary: {
-    id: 'stMary', name: 'St. Mary', region: 'northeast',
+    id: 'stMary', name: 'St. Mary', county: 'middlesex', region: 'northeast',
     population: 116099, lat: 18.3636, lng: -76.9235,
-    isCapital: false, elevation: 120, coastalRisk: 'medium'
+    isCapital: false, elevation: 120, coastalRisk: 'medium', politicalControl: 'JLP'
   },
   stAnn: {
-    id: 'stAnn', name: "St. Ann", region: 'north',
+    id: 'stAnn', name: "St. Ann", county: 'middlesex', region: 'north',
     population: 173512, lat: 18.4367, lng: -77.2022,
-    isCapital: false, elevation: 200, coastalRisk: 'low'
-  },
-  trelawny: {
-    id: 'trelawny', name: 'Trelawny', region: 'north',
-    population: 75853, lat: 18.3512, lng: -77.5977,
-    isCapital: false, elevation: 150, coastalRisk: 'low'
-  },
-  stJames: {
-    id: 'stJames', name: 'St. James', region: 'northwest',
-    population: 183811, lat: 18.4762, lng: -77.9088,
-    isCapital: false, elevation: 80, coastalRisk: 'medium'
-  },
-  hanover: {
-    id: 'hanover', name: 'Hanover', region: 'west',
-    population: 70085, lat: 18.4033, lng: -78.1323,
-    isCapital: false, elevation: 50, coastalRisk: 'high'
-  },
-  westmoreland: {
-    id: 'westmoreland', name: 'Westmoreland', region: 'west',
-    population: 144103, lat: 18.2181, lng: -78.1315,
-    isCapital: false, elevation: 30, coastalRisk: 'high'
-  },
-  stElizabeth: {
-    id: 'stElizabeth', name: 'St. Elizabeth', region: 'southwest',
-    population: 151466, lat: 18.0303, lng: -77.7403,
-    isCapital: false, elevation: 300, coastalRisk: 'low'
+    isCapital: false, elevation: 200, coastalRisk: 'low', politicalControl: 'PNP'
   },
   manchester: {
-    id: 'manchester', name: 'Manchester', region: 'central',
+    id: 'manchester', name: 'Manchester', county: 'middlesex', region: 'central',
     population: 191513, lat: 18.0419, lng: -77.5135,
-    isCapital: false, elevation: 600, coastalRisk: 'none'
+    isCapital: false, elevation: 600, coastalRisk: 'none', politicalControl: 'PNP'
   },
   clarendon: {
-    id: 'clarendon', name: 'Clarendon', region: 'central',
+    id: 'clarendon', name: 'Clarendon', county: 'middlesex', region: 'central',
     population: 246171, lat: 17.9614, lng: -77.2380,
-    isCapital: false, elevation: 100, coastalRisk: 'medium'
+    isCapital: false, elevation: 100, coastalRisk: 'medium', politicalControl: 'JLP'
   },
   stCatherine: {
-    id: 'stCatherine', name: 'St. Catherine', region: 'southeast',
+    id: 'stCatherine', name: 'St. Catherine', county: 'middlesex', region: 'southeast',
     population: 519953, lat: 17.9993, lng: -77.0301,
-    isCapital: false, elevation: 60, coastalRisk: 'medium'
+    isCapital: false, elevation: 60, coastalRisk: 'medium', politicalControl: 'PNP'
+  },
+
+  // --- CORNWALL COUNTY (West) ---
+  trelawny: {
+    id: 'trelawny', name: 'Trelawny (Falmouth)', county: 'cornwall', region: 'north',
+    population: 75853, lat: 18.3512, lng: -77.5977,
+    isCapital: false, elevation: 150, coastalRisk: 'low', politicalControl: 'JLP'
+  },
+  stJames: {
+    id: 'stJames', name: 'St. James', county: 'cornwall', region: 'northwest',
+    population: 183811, lat: 18.4762, lng: -77.9088,
+    isCapital: false, elevation: 80, coastalRisk: 'medium', politicalControl: 'JLP'
+  },
+  hanover: {
+    id: 'hanover', name: 'Hanover', county: 'cornwall', region: 'west',
+    population: 70085, lat: 18.4033, lng: -78.1323,
+    isCapital: false, elevation: 50, coastalRisk: 'high', politicalControl: 'PNP'
+  },
+  westmoreland: {
+    id: 'westmoreland', name: 'Westmoreland', county: 'cornwall', region: 'west',
+    population: 144103, lat: 18.2181, lng: -78.1315,
+    isCapital: false, elevation: 30, coastalRisk: 'high', politicalControl: 'PNP'
+  },
+  stElizabeth: {
+    id: 'stElizabeth', name: 'St. Elizabeth', county: 'cornwall', region: 'southwest',
+    population: 151466, lat: 18.0303, lng: -77.7403,
+    isCapital: false, elevation: 300, coastalRisk: 'low', politicalControl: 'JLP'
   }
 };
 
-// ─────────────────────────────────────────────
-// IN-MEMORY DISTRIBUTED STATE
-// Simulates Redis pub/sub with vector clocks
-// ─────────────────────────────────────────────
-const state = {
-  nodes: {},           // parish node states
-  resources: {},       // resource inventories per parish
-  events: [],          // system event log (last 200)
-  syncLog: [],         // inter-node sync operations
-  vectorClock: {},     // logical timestamps per node
-  splitBrainPartitions: [], // active partition events
-  alerts: [],          // active emergency alerts
-  consensusVotes: {},  // Raft-style leader election
-};
-
-// ─────────────────────────────────────────────
-// RESOURCE TYPES WITH REALISTIC UNITS
-// ─────────────────────────────────────────────
 const RESOURCE_TYPES = {
   water: { unit: 'gallons', critical: 5000, nominal: 50000, max: 100000 },
   food: { unit: 'rations', critical: 200, nominal: 2000, max: 5000 },
@@ -116,7 +104,31 @@ const RESOURCE_TYPES = {
 };
 
 // ─────────────────────────────────────────────
-// INITIALIZE NODE STATES
+// EXPANDED SYSTEM STATE (Step A & B Implementation)
+// ─────────────────────────────────────────────
+const state = {
+  nodes: {},           
+  resources: {},       
+  events: [],          
+  syncLog: [],         
+  vectorClock: {},     
+  splitBrainPartitions: [], 
+  alerts: [],          
+  consensusVotes: {},  
+  
+  // Real-world infrastructure and response states
+  infrastructure: {},  // Tracks local power grid and municipal details
+  dispatchTeams: {},   // Tracks locations of active JPS, JCF, and JDF teams
+  activeTasks: [],     // Ongoing emergency incidents waiting for relief dispatch
+  electionCycle: {
+    yearsUntilNext: 4,
+    lastElectionWinner: 'JLP',
+    isElectionYear: false
+  }
+};
+
+// ─────────────────────────────────────────────
+// INITIALIZE STATE WITH JAMAICAN INFRASTRUCTURE
 // ─────────────────────────────────────────────
 function initializeNodes() {
   Object.keys(PARISHES).forEach(id => {
@@ -124,9 +136,12 @@ function initializeNodes() {
 
     state.vectorClock[id] = 0;
 
+    // Node state includes political affiliation
     state.nodes[id] = {
       id,
       name: parish.name,
+      county: parish.county,
+      politicalControl: parish.politicalControl,
       status: 'online',
       role: id === 'kingston' ? 'primary' : 'replica',
       lastHeartbeat: Date.now(),
@@ -139,10 +154,25 @@ function initializeNodes() {
       uptime: Math.floor(Math.random() * 86400 * 30),
     };
 
+    // Initialize Parish Infrastructures
+    state.infrastructure[id] = {
+      jpsGridStatus: 100,       // percentage of power grid integrity
+      roadsOpen: true,          // track blockages (e.g. mudslides, downed trees)
+      shelterCapacity: Math.floor(parish.population * 0.05), // 5% capacity max
+      shelterOccupancy: 0
+    };
+
+    // Initialize Emergency Resource/Utility Dispatch Teams
+    state.dispatchTeams[id] = {
+      jpsCrews: id === 'kingston' || id === 'stAndrew' ? 5 : 2, 
+      emergencyOfficers: id === 'kingston' || id === 'stCatherine' ? 8 : 3, // JCF/JDF responders
+      waterTrucks: 2
+    };
+
     state.resources[id] = {};
     Object.keys(RESOURCE_TYPES).forEach(rt => {
       const cfg = RESOURCE_TYPES[rt];
-      const ratio = 0.3 + Math.random() * 0.6;
+      const ratio = 0.6 + Math.random() * 0.3; // Higher starting stocks for baseline stability
       state.resources[id][rt] = {
         current: Math.floor(cfg.nominal * ratio),
         capacity: cfg.max,
@@ -155,16 +185,13 @@ function initializeNodes() {
     });
   });
 
-  // Kingston starts fully stocked as primary hub
+  // Kingston starts heavily stockpiled as the central response hub
   Object.keys(RESOURCE_TYPES).forEach(rt => {
     const cfg = RESOURCE_TYPES[rt];
-    state.resources.kingston[rt].current = Math.floor(cfg.max * 0.85);
+    state.resources.kingston[rt].current = Math.floor(cfg.max * 0.9);
   });
 }
 
-// ─────────────────────────────────────────────
-// EVENT SYSTEM
-// ─────────────────────────────────────────────
 function logEvent(type, message, payload = {}) {
   const event = {
     id: uuidv4(),
@@ -179,9 +206,6 @@ function logEvent(type, message, payload = {}) {
   return event;
 }
 
-// ─────────────────────────────────────────────
-// VECTOR CLOCK — CAUSALITY TRACKING
-// ─────────────────────────────────────────────
 function tick(nodeId) {
   state.vectorClock[nodeId] = (state.vectorClock[nodeId] || 0) + 1;
   return { ...state.vectorClock };
@@ -195,10 +219,6 @@ function mergeClocks(a, b) {
   return merged;
 }
 
-// ─────────────────────────────────────────────
-// SPLIT-BRAIN DETECTION & RESOLUTION
-// Using quorum-based approach (majority wins)
-// ─────────────────────────────────────────────
 function detectSplitBrain() {
   const onlineNodes = Object.values(state.nodes).filter(n => n.status === 'online');
   const totalNodes = Object.keys(state.nodes).length;
@@ -217,28 +237,23 @@ function detectSplitBrain() {
         resolution: null
       };
       state.splitBrainPartitions.push(partition);
-      logEvent('SPLIT_BRAIN', `⚠️ Split-brain detected: ${onlineNodes.length}/${totalNodes} nodes online (need ${quorum} for quorum)`, partition);
+      logEvent('SPLIT_BRAIN', `⚠️ Mesh Partition: ${onlineNodes.length}/${totalNodes} nodes connected. Quorum lost! Parishes split along county borders.`, partition);
 
-      // Auto-resolve after quorum lost - primary node retains writes, isolates minority
       setTimeout(() => {
         partition.active = false;
         partition.resolution = 'quorum_maintained';
-        logEvent('PARTITION_RESOLVED', `✓ Partition resolved via quorum — minority nodes entering read-only mode`, { partition });
+        logEvent('PARTITION_RESOLVED', `✓ Network topology repaired. Central ODPEM node re-synchronized clocks.`, { partition });
       }, 15000);
     }
   }
 }
 
-// ─────────────────────────────────────────────
-// RAFT-STYLE LEADER ELECTION
-// ─────────────────────────────────────────────
 function triggerLeaderElection(failedNodeId) {
   const candidates = Object.values(state.nodes).filter(n =>
     n.status === 'online' && n.id !== failedNodeId
   );
   if (candidates.length === 0) return;
 
-  // Sort by uptime + term, pick highest
   candidates.sort((a, b) => (b.uptime + b.term * 1000) - (a.uptime + a.term * 1000));
   const newLeader = candidates[0];
 
@@ -247,20 +262,28 @@ function triggerLeaderElection(failedNodeId) {
   newLeader.role = 'primary';
   newLeader.term += 1;
 
-  logEvent('LEADER_ELECTION', `🗳 Leader election: ${newLeader.name} elected as primary (term ${newLeader.term})`, {
+  logEvent('LEADER_ELECTION', `🗳 ODPEM Coordinator Failover: Central authority shifted to ${newLeader.name} Corporation Node (Term ${newLeader.term})`, {
     newLeader: newLeader.id,
-    failedNode: failedNodeId,
-    candidates: candidates.map(c => c.id)
+    failedNode: failedNodeId
   });
 }
 
 // ─────────────────────────────────────────────
-// RESOURCE TRANSFER BETWEEN NODES
+// RESOURCE AND TEAM DISPATCH TRANSFERS
 // ─────────────────────────────────────────────
 function transferResource(fromId, toId, resourceType, amount) {
   const from = state.resources[fromId];
   const to = state.resources[toId];
+  const fromNode = state.nodes[fromId];
+  const toNode = state.nodes[toId];
+  
   if (!from || !to) return { success: false, error: 'Node not found' };
+
+  // Bureaucracy Multiplier: Political friction calculation if crossing rival parish lines
+  let politicalDelay = 0;
+  if (fromNode && toNode && fromNode.politicalControl !== toNode.politicalControl) {
+    politicalDelay = 2000; // Simulates 2 seconds administrative gridlock delay
+  }
 
   const available = from[resourceType]?.current || 0;
   const actualAmount = Math.min(amount, available);
@@ -276,157 +299,244 @@ function transferResource(fromId, toId, resourceType, amount) {
 
   const syncEntry = {
     id: uuidv4(),
-    timestamp: Date.now(),
+    timestamp: Date.now() + politicalDelay,
     from: fromId,
     to: toId,
     resource: resourceType,
     amount: actualAmount,
+    politicalFriction: politicalDelay > 0,
     vectorClock: { ...state.vectorClock }
   };
   state.syncLog.unshift(syncEntry);
   if (state.syncLog.length > 100) state.syncLog.pop();
 
   broadcastToClients({ type: 'sync', data: syncEntry });
-
   return { success: true, amount: actualAmount, vectorClock: state.vectorClock };
 }
 
-// ─────────────────────────────────────────────
-// CRISIS EVENT SIMULATION
-// ─────────────────────────────────────────────
-const CRISIS_TYPES = [
-  { type: 'HURRICANE', name: 'Hurricane Warning', drain: { water: 0.3, food: 0.2, fuel: 0.4 }, affectsCoastal: true },
-  { type: 'EARTHQUAKE', name: 'Seismic Event', drain: { medical: 0.5, comms: 0.6 }, affectsAll: true },
-  { type: 'FLOODING', name: 'Flash Flooding', drain: { water: 0.1, power: 0.5 }, affectsLow: true },
-  { type: 'GRID_FAILURE', name: 'Power Grid Failure', drain: { power: 0.8, comms: 0.3 }, affectsAll: true },
-  { type: 'SUPPLY_DISRUPTION', name: 'Supply Chain Disruption', drain: { food: 0.4, medical: 0.3 }, affectsAll: true },
-];
+// Dispatch a resource physical crew (JPS / Emergency Officers) across nodes
+function dispatchCrew(fromId, toId, crewType) {
+  if (!state.dispatchTeams[fromId] || !state.dispatchTeams[toId]) return false;
+  if (state.dispatchTeams[fromId][crewType] <= 0) return false;
 
-function triggerCrisisEvent(parishId, crisisType) {
-  const crisis = CRISIS_TYPES.find(c => c.type === crisisType) || CRISIS_TYPES[Math.floor(Math.random() * CRISIS_TYPES.length)];
-  const parish = PARISHES[parishId];
-
-  // Apply resource drain
-  Object.entries(crisis.drain).forEach(([resource, ratio]) => {
-    if (state.resources[parishId][resource]) {
-      const current = state.resources[parishId][resource].current;
-      state.resources[parishId][resource].current = Math.max(0, Math.floor(current * (1 - ratio)));
-      state.resources[parishId][resource].trend = 'critical';
-    }
-  });
-
-  const alert = {
-    id: uuidv4(),
-    timestamp: Date.now(),
-    parish: parishId,
-    parishName: parish.name,
-    type: crisis.type,
-    name: crisis.name,
-    severity: 'high',
-    active: true
-  };
-  state.alerts.unshift(alert);
-  if (state.alerts.length > 50) state.alerts.pop();
-
-  logEvent('CRISIS', `🚨 ${crisis.name} at ${parish.name} — initiating emergency resource reallocation`, alert);
-  broadcastToClients({ type: 'alert', data: alert });
-
-  return alert;
+  state.dispatchTeams[fromId][crewType]--;
+  state.dispatchTeams[toId][crewType]++;
+  
+  logEvent('TEAM_DISPATCH', `🚒 Cross-Parish Support: ${PARISHES[fromId].name} dispatched 1 ${crewType} crew to ${PARISHES[toId].name}.`, { fromId, toId, crewType });
+  return true;
 }
 
 // ─────────────────────────────────────────────
-// SIMULATION LOOP — Heartbeats, Resource Drift, Sync
+// NATURAL WEATHER ENGINE — HURRICANE PATHS
+// Simulating dynamic destruction realistically
+// ─────────────────────────────────────────────
+const HURRICANE_SCENARIOS = {
+  WESTERN_HIT: {
+    name: "Hurricane Melissa",
+    description: "Category 4 storm slamming directly through Cornwall county.",
+    targets: ['westmoreland', 'hanover', 'trelawny', 'stJames', 'stElizabeth', 'manchester'],
+    gridDamage: 0.85, // 85% grid destruction
+    roadBlockChance: 0.8,
+    drain: { water: 0.4, food: 0.3, power: 0.9, fuel: 0.5 }
+  },
+  SOUTH_COAST_SWEEP: {
+    name: "Hurricane Ivan Clone",
+    description: "Slamming southern coastal areas and low-lying plains.",
+    targets: ['stThomas', 'kingston', 'stCatherine', 'clarendon', 'stElizabeth', 'westmoreland'],
+    gridDamage: 0.70,
+    roadBlockChance: 0.6,
+    drain: { water: 0.5, medical: 0.4, power: 0.75, comms: 0.5 }
+  }
+};
+
+function executeHurricaneSim(scenarioKey) {
+  const scenario = HURRICANE_SCENARIOS[scenarioKey] || HURRICANE_SCENARIOS.WESTERN_HIT;
+  
+  logEvent('HURRICANE_LANDFALL', `🌀 ALERT: ${scenario.name} Landfall! ${scenario.description}`, scenario);
+
+  scenario.targets.forEach(parishId => {
+    if (!state.nodes[parishId]) return;
+
+    // 1. Structural Collapse
+    state.infrastructure[parishId].jpsGridStatus = Math.max(0, Math.floor(100 - (100 * scenario.gridDamage)));
+    if (Math.random() < scenario.roadBlockChance) {
+      state.infrastructure[parishId].roadsOpen = false;
+    }
+
+    // 2. Population displacement into local shelters
+    const localParish = PARISHES[parishId];
+    const displaced = Math.floor(localParish.population * (0.01 + Math.random() * 0.03));
+    state.infrastructure[parishId].shelterOccupancy = Math.min(state.infrastructure[parishId].shelterCapacity, displaced);
+
+    // 3. Severe Resource Drain
+    Object.entries(scenario.drain).forEach(([resource, ratio]) => {
+      if (state.resources[parishId][resource]) {
+        const current = state.resources[parishId][resource].current;
+        state.resources[parishId][resource].current = Math.max(0, Math.floor(current * (1 - ratio)));
+        state.resources[parishId][resource].trend = 'critical';
+      }
+    });
+
+    // 4. Append specific urgent task tickets to the queue
+    createActionTask(parishId, scenario.name);
+
+    // Turn node state degraded/offline due to storm force
+    state.nodes[parishId].status = Math.random() > 0.5 ? 'offline' : 'degraded';
+    if (state.nodes[parishId].status === 'offline' && state.nodes[parishId].isLeader) {
+      triggerLeaderElection(parishId);
+    }
+  });
+
+  // Create global alert entry
+  state.alerts.unshift({
+    id: uuidv4(),
+    timestamp: Date.now(),
+    type: 'HURRICANE',
+    name: scenario.name,
+    severity: 'critical',
+    active: true,
+    affectedCounties: [...new Set(scenario.targets.map(id => PARISHES[id].county))]
+  });
+
+  broadcastToClients({ type: 'state', data: getFullState() });
+}
+
+function createActionTask(parishId, crisisName) {
+  const pName = PARISHES[parishId].name;
+  const issues = [
+    { type: 'GRID', msg: `Downed high-voltage lines in ${pName} blocking main corridor. Requires JPS crews.`, cost: 'jpsCrews' },
+    { type: 'RESCUE', msg: `Flooding reported in low lying zones of ${pName}. Displaced residents stranded. Deploy JCF/JDF officers.`, cost: 'emergencyOfficers' },
+    { type: 'SUPPLY', msg: `Critical health facility in ${pName} short on power generators and water. Dispatch supply trucks.`, cost: 'waterTrucks' }
+  ];
+
+  const pick = issues[Math.floor(Math.random() * issues.length)];
+  state.activeTasks.push({
+    id: uuidv4(),
+    parishId,
+    parishName: pName,
+    origin: crisisName,
+    type: pick.type,
+    description: pick.msg,
+    requiredCrew: pick.cost,
+    status: 'pending',
+    timestamp: Date.now()
+  });
+}
+
+// ─────────────────────────────────────────────
+// SIMULATION ENGINE INTERVAL TICK (Every 5s)
 // ─────────────────────────────────────────────
 function simulationTick() {
   const now = Date.now();
 
   Object.keys(state.nodes).forEach(id => {
     const node = state.nodes[id];
+    const infra = state.infrastructure[id];
+    const teams = state.dispatchTeams[id];
     const resources = state.resources[id];
     const parish = PARISHES[id];
 
-    if (node.status !== 'online') {
-      node.lastHeartbeat = now - (Math.random() * 60000 + 30000); // stale
-      return;
-    }
+    if (node.status === 'offline') return;
 
-    // Heartbeat
     node.lastHeartbeat = now;
     node.heartbeatCount++;
     node.uptime += 5;
-    node.networkLatency = Math.max(5, node.networkLatency + (Math.random() - 0.5) * 8);
 
-    // Consume resources based on population demand
-    const demandFactor = parish.population / 500000;
+    // Power Grid Recovery Engine: If a grid is hit, JPS crews slowly fix it over time
+    if (infra.jpsGridStatus < 100 && teams.jpsCrews > 0) {
+      const recoveryAmount = teams.jpsCrews * 4; // Each crew yields +4% power infrastructure repair per tick
+      infra.jpsGridStatus = Math.min(100, infra.jpsGridStatus + recoveryAmount);
+      if (infra.jpsGridStatus === 100) {
+        infra.roadsOpen = true; // Clearing the grid unlocks paths
+        if (node.status === 'degraded') node.status = 'online';
+        logEvent('INFRA_REPAIRED', `⚡ JPS Crews restored sub-station links in ${parish.name}. Infrastructure stabilized.`);
+      }
+    }
+
+    // Normal baseline consumption model
+    const demandFactor = parish.population / 400000;
     Object.keys(RESOURCE_TYPES).forEach(rt => {
       const res = resources[rt];
-      const drain = Math.floor(Math.random() * 20 * demandFactor) + 2;
+      // Power issues increase drain rates on fuel due to back-up diesel generators running
+      const generatorFactor = infra.jpsGridStatus < 50 && rt === 'fuel' ? 2.5 : 1;
+      const drain = Math.floor((Math.random() * 15 * demandFactor) + 2) * generatorFactor;
+      
       res.current = Math.max(0, res.current - drain);
       res.lastUpdated = now;
 
-      // Update trend
       const cfg = RESOURCE_TYPES[rt];
       if (res.current < cfg.critical) res.trend = 'critical';
       else if (res.current < cfg.nominal * 0.4) res.trend = 'low';
-      else if (res.current > cfg.nominal * 0.8) res.trend = 'stable';
       else res.trend = 'stable';
     });
 
-    // Propagate sync metadata
-    const partners = Object.keys(state.nodes).filter(k => k !== id && state.nodes[k].status === 'online');
-    node.syncedWith = partners.slice(0, 3);
-    node.pendingWrites = Math.max(0, node.pendingWrites - Math.floor(Math.random() * 3));
-
-    // Small random incoming replenishment
-    if (Math.random() < 0.1) {
-      const rt = Object.keys(RESOURCE_TYPES)[Math.floor(Math.random() * 6)];
-      const cfg = RESOURCE_TYPES[rt];
-      const restock = Math.floor(Math.random() * 500) + 100;
-      resources[rt].current = Math.min(cfg.max, resources[rt].current + restock);
-      resources[rt].inbound += restock;
-    }
+    // Task Automator: Self-resolve tasks if teams exist on site
+    state.activeTasks.forEach(task => {
+      if (task.parishId === id && task.status === 'pending') {
+        if (teams[task.requiredCrew] > 0) {
+          task.status = 'processing';
+          setTimeout(() => {
+            task.status = 'resolved';
+            logEvent('TASK_RESOLVED', `✓ Resolved: ${task.description}`);
+            // Remove completed tasks
+            state.activeTasks = state.activeTasks.filter(t => t.id !== task.id);
+          }, 4000);
+        }
+      }
+    });
   });
 
-  // Auto-rebalance: pull resources from wealthy to critical nodes
+  // Cross-Parish Network Assistance (Auto-routing relief)
   Object.keys(state.resources).forEach(toId => {
     if (state.nodes[toId].status !== 'online') return;
     Object.keys(RESOURCE_TYPES).forEach(rt => {
       const cfg = RESOURCE_TYPES[rt];
-      const toRes = state.resources[toId][rt];
-      if (toRes.current < cfg.critical) {
-        // Find richest online node
-        const donors = Object.keys(state.resources)
-          .filter(fId => fId !== toId && state.nodes[fId].status === 'online')
+      if (state.resources[toId][rt].current < cfg.critical) {
+        // Look within the same historic County first to save logistical resources
+        const regionalDonors = Object.keys(state.resources)
+          .filter(fId => fId !== toId && state.nodes[fId].status === 'online' && PARISHES[fId].county === PARISHES[toId].county)
           .sort((a, b) => state.resources[b][rt].current - state.resources[a][rt].current);
-        if (donors.length > 0) {
-          const fromId = donors[0];
-          const fromRes = state.resources[fromId][rt];
-          if (fromRes.current > cfg.nominal) {
-            const amount = Math.min(Math.floor(cfg.nominal * 0.15), fromRes.current - cfg.nominal);
-            if (amount > 0) {
-              transferResource(fromId, toId, rt, amount);
-              logEvent('AUTO_REBALANCE', `📦 Auto-transfer: ${amount} ${cfg.unit} of ${rt} from ${PARISHES[fromId].name} → ${PARISHES[toId].name}`, { fromId, toId, rt, amount });
-            }
+
+        const donorId = regionalDonors[0] || Object.keys(state.resources)
+          .filter(fId => fId !== toId && state.nodes[fId].status === 'online')
+          .sort((a, b) => state.resources[b][rt].current - state.resources[a][rt].current)[0];
+
+        if (donorId && state.resources[donorId][rt].current > cfg.nominal) {
+          const amount = Math.min(Math.floor(cfg.nominal * 0.2), state.resources[donorId][rt].current - cfg.nominal);
+          if (amount > 0) {
+            transferResource(donorId, toId, rt, amount);
+            logEvent('AUTO_ROUTE', `📦 Automated Mesh Route: ${amount} ${cfg.unit} of ${rt} sent from ${PARISHES[donorId].name} (${PARISHES[donorId].county.toUpperCase()}) → ${PARISHES[toId].name}`);
           }
         }
       }
     });
   });
 
+  // Handle local government election calendar tracking
+  if (Math.random() < 0.02) {
+    state.electionCycle.yearsUntilNext--;
+    if (state.electionCycle.yearsUntilNext <= 0) {
+      state.electionCycle.yearsUntilNext = 4;
+      // Cycle leadership randomly across parishes to simulate a changing political landscape
+      Object.keys(state.nodes).forEach(id => {
+        state.nodes[id].politicalControl = Math.random() > 0.5 ? 'JLP' : 'PNP';
+      });
+      logEvent('ELECTION_NIGHT', `🗳 Local Government Elections Completed! Municipal corporation control redistributed nationwide.`);
+    }
+  }
+
   detectSplitBrain();
 }
 
-// Run simulation every 5 seconds
 setInterval(simulationTick, 5000);
 
 // ─────────────────────────────────────────────
-// WEBSOCKET BROADCAST
+// WEBSOCKET COMMUNICATOR
 // ─────────────────────────────────────────────
 const clients = new Set();
 
 wss.on('connection', (ws) => {
   clients.add(ws);
-  // Send full state on connect
   ws.send(JSON.stringify({ type: 'init', data: getFullState() }));
   ws.on('close', () => clients.delete(ws));
   ws.on('error', () => clients.delete(ws));
@@ -439,7 +549,6 @@ function broadcastToClients(msg) {
   });
 }
 
-// Broadcast full state every 5s
 setInterval(() => {
   broadcastToClients({ type: 'state', data: getFullState() });
 }, 5000);
@@ -448,6 +557,10 @@ function getFullState() {
   return {
     nodes: state.nodes,
     resources: state.resources,
+    infrastructure: state.infrastructure,
+    dispatchTeams: state.dispatchTeams,
+    activeTasks: state.activeTasks,
+    electionCycle: state.electionCycle,
     events: state.events.slice(0, 50),
     syncLog: state.syncLog.slice(0, 30),
     vectorClock: state.vectorClock,
@@ -460,151 +573,37 @@ function getFullState() {
 }
 
 // ─────────────────────────────────────────────
-// REST API ROUTES
+// REST API ENDPOINTS FOR CRISIS SIMULATION
 // ─────────────────────────────────────────────
-
 app.get('/api/state', (req, res) => res.json(getFullState()));
 
-app.get('/api/nodes', (req, res) => res.json(Object.values(state.nodes)));
-
-app.get('/api/nodes/:id', (req, res) => {
-  const node = state.nodes[req.params.id];
-  if (!node) return res.status(404).json({ error: 'Node not found' });
-  res.json({
-    node,
-    resources: state.resources[req.params.id],
-    parish: PARISHES[req.params.id],
-    vectorClock: state.vectorClock
-  });
+// Trigger realistic comprehensive hurricane tracks
+app.post('/api/hurricane', (req, res) => {
+  const { track } = req.body; // 'WESTERN_HIT' or 'SOUTH_COAST_SWEEP'
+  executeHurricaneSim(track);
+  res.json({ success: true, message: `Hurricane trajectory executed successfully.` });
 });
 
-app.post('/api/nodes/:id/status', (req, res) => {
-  const { status } = req.body;
-  const node = state.nodes[req.params.id];
-  if (!node) return res.status(404).json({ error: 'Node not found' });
-
-  const prev = node.status;
-  node.status = status;
-
-  if (status === 'offline' && prev === 'online') {
-    if (node.isLeader) triggerLeaderElection(req.params.id);
-    logEvent('NODE_DOWN', `🔴 Node ${node.name} went offline — failover initiated`, { nodeId: req.params.id });
-  } else if (status === 'online' && prev === 'offline') {
-    node.lastHeartbeat = Date.now();
-    node.pendingWrites = Math.floor(Math.random() * 20);
-    logEvent('NODE_UP', `🟢 Node ${node.name} rejoined mesh — syncing ${node.pendingWrites} pending writes`, { nodeId: req.params.id });
-  } else if (status === 'degraded') {
-    logEvent('NODE_DEGRADED', `🟡 Node ${node.name} entered degraded mode — partial connectivity`, { nodeId: req.params.id });
+// Manual support dispatch operations
+app.post('/api/dispatch', (req, res) => {
+  const { from, to, crewType } = req.body; // crewType: 'jpsCrews' | 'emergencyOfficers' | 'waterTrucks'
+  const success = dispatchCrew(from, to, crewType);
+  if (success) {
+    res.json({ success: true });
+  } else {
+    res.status(400).json({ error: 'Failed to dispatch crew. Verify availability.' });
   }
-
-  broadcastToClients({ type: 'state', data: getFullState() });
-  res.json({ success: true, node });
-});
-
-app.post('/api/transfer', (req, res) => {
-  const { from, to, resource, amount } = req.body;
-  if (!from || !to || !resource || !amount) {
-    return res.status(400).json({ error: 'Missing required fields: from, to, resource, amount' });
-  }
-
-  const result = transferResource(from, to, resource, parseInt(amount));
-  if (result.success) {
-    logEvent('MANUAL_TRANSFER', `📦 Manual transfer: ${result.amount} ${RESOURCE_TYPES[resource]?.unit} of ${resource} from ${PARISHES[from]?.name} → ${PARISHES[to]?.name}`, { from, to, resource, amount: result.amount });
-  }
-  res.json(result);
-});
-
-app.post('/api/crisis', (req, res) => {
-  const { parish, type } = req.body;
-  if (!parish) return res.status(400).json({ error: 'Parish required' });
-  const alert = triggerCrisisEvent(parish, type);
-  res.json({ success: true, alert });
-});
-
-app.post('/api/crisis/:alertId/resolve', (req, res) => {
-  const alert = state.alerts.find(a => a.id === req.params.alertId);
-  if (!alert) return res.status(404).json({ error: 'Alert not found' });
-  alert.active = false;
-  alert.resolvedAt = Date.now();
-  logEvent('CRISIS_RESOLVED', `✅ Crisis resolved at ${alert.parishName}: ${alert.name}`, { alertId: alert.id });
-  broadcastToClients({ type: 'state', data: getFullState() });
-  res.json({ success: true });
-});
-
-app.post('/api/rebalance', (req, res) => {
-  const transfers = [];
-  Object.keys(state.resources).forEach(toId => {
-    if (state.nodes[toId].status !== 'online') return;
-    Object.keys(RESOURCE_TYPES).forEach(rt => {
-      const cfg = RESOURCE_TYPES[rt];
-      const toRes = state.resources[toId][rt];
-      if (toRes.current < cfg.nominal * 0.5) {
-        const donors = Object.keys(state.resources)
-          .filter(fId => fId !== toId && state.nodes[fId].status === 'online')
-          .sort((a, b) => state.resources[b][rt].current - state.resources[a][rt].current);
-        if (donors.length > 0) {
-          const fromId = donors[0];
-          const fromRes = state.resources[fromId][rt];
-          if (fromRes.current > cfg.nominal * 1.2) {
-            const amount = Math.floor((fromRes.current - cfg.nominal) * 0.3);
-            if (amount > 0) {
-              const result = transferResource(fromId, toId, rt, amount);
-              if (result.success) transfers.push({ from: fromId, to: toId, resource: rt, amount });
-            }
-          }
-        }
-      }
-    });
-  });
-  logEvent('GLOBAL_REBALANCE', `⚖️ Global rebalance executed: ${transfers.length} transfers completed`, { transfers });
-  broadcastToClients({ type: 'state', data: getFullState() });
-  res.json({ success: true, transfers });
-});
-
-app.get('/api/analytics', (req, res) => {
-  const onlineNodes = Object.values(state.nodes).filter(n => n.status === 'online').length;
-  const totalNodes = Object.keys(state.nodes).length;
-
-  const resourceSummary = {};
-  Object.keys(RESOURCE_TYPES).forEach(rt => {
-    const cfg = RESOURCE_TYPES[rt];
-    const totals = Object.values(state.resources).map(r => r[rt].current);
-    const sum = totals.reduce((a, b) => a + b, 0);
-    const criticalNodes = totals.filter(t => t < cfg.critical).length;
-    resourceSummary[rt] = {
-      total: sum,
-      average: Math.floor(sum / totals.length),
-      criticalCount: criticalNodes,
-      unit: cfg.unit
-    };
-  });
-
-  res.json({
-    meshHealth: Math.round((onlineNodes / totalNodes) * 100),
-    onlineNodes,
-    totalNodes,
-    activeAlerts: state.alerts.filter(a => a.active).length,
-    totalSyncs: state.syncLog.length,
-    eventCount: state.events.length,
-    splitBrainEvents: state.splitBrainPartitions.length,
-    resourceSummary,
-    vectorClock: state.vectorClock,
-    timestamp: Date.now()
-  });
 });
 
 app.get('/health', (req, res) => res.json({ status: 'ok', uptime: process.uptime() }));
 
-// ─────────────────────────────────────────────
-// BOOT
-// ─────────────────────────────────────────────
 initializeNodes();
 
 const PORT = process.env.PORT || 3001;
 httpServer.listen(PORT, () => {
-  console.log(`\n🇯🇲 IslandPulse Mesh Coordinator online — port ${PORT}`);
-  console.log(`📡 ${Object.keys(PARISHES).length} parish nodes initialized`);
-  console.log(`🔄 Simulation loop active (5s tick)\n`);
+  console.log(`\n🇯🇲 IslandPulse Disaster Network Coordination Node online — port ${PORT}`);
+  console.log(`📡 Parsed 14 regional parish clusters across Surrey, Middlesex, & Cornwall`);
+  console.log(`🌀 Hurricane Simulation Engine & Grid Infrastructure loops operational.\n`);
 });
 
 module.exports = { app, state, PARISHES, RESOURCE_TYPES };

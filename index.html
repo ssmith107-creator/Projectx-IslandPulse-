@@ -3,1534 +3,571 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IslandPulse — Jamaica Emergency Resource Mesh</title>
+<title>IslandPulse v4 — Sovereign Multi-Hazard Orchestrator & Fiscal Capital Console</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root {
+    --bg:        #02060a;
+    --bg-card:   #060f17;
+    --border:    #112536;
+    --cyan:      #00b0ff;
+    --green:     #00e676;
+    --yellow:    #ffea00;
+    --orange:    #ff6d00;
+    --red:       #ff1744;
+    --purple:    #d500f9;
+    --text:      #e2ecf5;
+    --text-muted:#627d98;
+  }
 
-:root {
-  --bg:        #03070a;
-  --bg2:       #060d12;
-  --bg3:       #091016;
-  --bg4:       #0c141b;
-  --surface:   #0f1c25;
-  --surface2:  #142330;
-  --b1:        rgba(0,176,255,0.08);
-  --b2:        rgba(0,176,255,0.16);
-  --b3:        rgba(0,176,255,0.30);
-  --cyan:      #00b0ff;
-  --cyan2:     #0088cc;
-  --cglow:     rgba(0,176,255,0.15);
-  --amber:     #ffb300;
-  --amber2:    #e6a000;
-  --red:       #ff4444;
-  --red2:      #cc2222;
-  --green:     #00e676;
-  --green2:    #00b050;
-  --orange:    #ff6d00;
-  --purple:    #b388ff;
-  --teal:      #1de9b6;
-  --text:      #c8e8f8;
-  --text2:     #7ab8d8;
-  --text3:     #3a6880;
-  --text4:     #1e3d50;
-  --font:      'Space Grotesk', sans-serif;
-  --mono:      'JetBrains Mono', monospace;
-  --r:         5px;
-  --r2:        9px;
-  --r3:        13px;
-}
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    padding: 15px;
+    height: 100vh;
+    overflow: hidden;
+  }
 
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px;overflow:hidden}
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 12px;
+    box-shadow: 0 0 15px rgba(0, 176, 255, 0.05);
+  }
+  .logo-area h1 { font-size: 20px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }
+  .logo-area span { color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 1px; }
+  
+  .simulation-ticker {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    background: #04111d;
+    padding: 6px 16px;
+    border-radius: 4px;
+    border: 1px solid #163047;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+  }
+  
+  .ticker-item { display: flex; align-items: center; gap: 5px; }
+  .ticker-val { font-weight: bold; color: var(--cyan); }
 
-.shell{display:grid;grid-template-rows:52px 1fr;grid-template-columns:260px 1fr 300px;height:100vh}
-.topbar{grid-column:1/-1;display:flex;align-items:center;gap:12px;padding:0 16px;background:var(--bg2);border-bottom:1px solid var(--b2);z-index:100;position:relative}
-.topbar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:0.4}
-.sidebar{background:var(--bg2);border-right:1px solid var(--b1);overflow-y:auto;display:flex;flex-direction:column}
-.main{overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;background:var(--bg)}
-.rightpanel{background:var(--bg2);border-left:1px solid var(--b1);overflow:hidden;display:flex;flex-direction:column}
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 12px;
+    height: calc(100vh - 95px);
+  }
 
-::-webkit-scrollbar{width:3px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--b2);border-radius:4px}
+  .main-column { display: flex; flex-direction: column; gap: 12px; overflow-y: auto; height: 100%; padding-right: 4px; }
+  
+  .map-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    min-height: 370px;
+  }
+  .map-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 6px;}
+  .map-header h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--cyan); }
+  
+  .svg-container {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #03080d;
+    border-radius: 4px;
+    border: 1px solid rgba(17, 37, 54, 0.5);
+  }
+  
+  svg.jamaica-map { width: 100%; height: 100%; max-height: 310px; }
+  .county-line { fill: none; stroke: rgba(0, 176, 255, 0.1); stroke-width: 1.5; stroke-dasharray: 4; }
+  .county-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; fill: var(--text-muted); font-weight: bold; letter-spacing: 1.5px; }
 
-/* TOPBAR */
-.logo{display:flex;align-items:center;gap:10px;text-decoration:none}
-.logo-mark{width:34px;height:34px;position:relative;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.logo-mark svg{width:34px;height:34px}
-.logo-text{line-height:1.15}
-.logo-name{font-size:16px;font-weight:700;color:var(--cyan);letter-spacing:-0.4px}
-.logo-sub{font-size:9px;color:var(--text3);font-family:var(--mono);letter-spacing:2px;text-transform:uppercase}
-.spacer{flex:1}
+  .parish-polygon {
+    fill: #06121c;
+    stroke: #12283a;
+    stroke-width: 1.2;
+    transition: all 0.25s ease;
+  }
+  
+  .parish-polygon.stable { fill: #061c12; stroke: var(--green); }
+  .parish-polygon.warning { fill: #241a05; stroke: var(--orange); }
+  .parish-polygon.critical { fill: #26050b; stroke: var(--red); stroke-width: 1.8; }
 
-.hud-strip{display:flex;align-items:center;gap:8px}
-.hpill{display:flex;align-items:center;gap:6px;padding:4px 11px;background:var(--bg3);border:1px solid var(--b1);border-radius:20px;font-family:var(--mono);font-size:11px;color:var(--text3)}
-.hpill .v{font-weight:600}
-.hpill .v.ok{color:var(--green)}
-.hpill .v.warn{color:var(--amber)}
-.hpill .v.crit{color:var(--red)}
-.led{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.led.ok{background:var(--green);box-shadow:0 0 6px var(--green);animation:ledpulse 2.2s ease-in-out infinite}
-.led.warn{background:var(--amber);box-shadow:0 0 6px var(--amber)}
-.led.crit{background:var(--red);box-shadow:0 0 8px var(--red);animation:ledblink 0.7s ease-in-out infinite}
-@keyframes ledpulse{0%,100%{opacity:1}50%{opacity:.45}}
-@keyframes ledblink{0%,100%{opacity:1}50%{opacity:.1}}
+  .map-lbl { font-family: 'Space Grotesk', sans-serif; font-size: 10px; fill: #fff; pointer-events: none; font-weight: 600; text-shadow: 1px 1px 2px #000; }
 
-.utclock{font-family:var(--mono);font-size:12px;color:var(--text3);background:var(--bg3);padding:4px 11px;border-radius:20px;border:1px solid var(--b1)}
+  .infra-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+  }
+  .infra-card h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--cyan); margin-bottom: 10px; }
+  
+  table.infra-table { width: 100%; border-collapse: collapse; font-size: 11px; text-align: left; }
+  table.infra-table th { padding: 6px 8px; color: var(--text-muted); border-bottom: 1px solid var(--border); text-transform: uppercase; font-size: 9.5px; }
+  table.infra-table td { padding: 6px 8px; border-bottom: 1px solid rgba(22, 42, 59, 0.3); }
 
-.storm-alert-bar{background:linear-gradient(90deg,rgba(255,68,68,0.08),rgba(255,109,0,0.08));border:1px solid rgba(255,109,0,0.35);border-radius:20px;padding:4px 12px;font-size:11px;color:var(--orange);font-family:var(--mono);font-weight:500;display:none;animation:stormGlow 2s ease-in-out infinite}
-.storm-alert-bar.show{display:flex;align-items:center;gap:6px}
-@keyframes stormGlow{0%,100%{border-color:rgba(255,109,0,0.35)}50%{border-color:var(--orange)}}
+  .side-column { display: flex; flex-direction: column; gap: 12px; height: 100%; }
+  .side-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+  }
+  .side-card h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--cyan); margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+  
+  .fiscal-metric {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    margin-bottom: 5px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #0d1e2d;
+  }
 
-/* SECTION */
-.sec{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);padding:10px 13px 5px}
-.divider{height:1px;background:var(--b1);margin:2px 0}
+  .list-container { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; max-height: 230px; min-height: 140px; }
+  .log-entry { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; border-bottom: 1px solid #0a1926; padding-bottom: 3px; line-height: 1.4; color: #a0b2c6; }
 
-/* NODE LIST */
-.nitem{display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;border-left:2px solid transparent;transition:background .1s;position:relative}
-.nitem:hover{background:var(--cglow)}
-.nitem.active{background:rgba(0,176,255,0.06);border-left-color:var(--cyan)}
-.nled{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.nled.online{background:var(--green);box-shadow:0 0 6px var(--green)}
-.nled.offline{background:var(--red2)}
-.nled.degraded{background:var(--amber);box-shadow:0 0 5px var(--amber)}
-.ninfo{flex:1;min-width:0}
-.nname{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.nmeta{font-size:10px;font-family:var(--mono);color:var(--text3)}
-.nitem.leader .nname::after{content:' ★';color:var(--amber);font-size:9px}
-.nbadge{font-size:9px;font-family:var(--mono);padding:1px 5px;border-radius:3px}
-.nbadge.crit{background:rgba(255,68,68,0.1);color:var(--red);border:1px solid rgba(255,68,68,0.22)}
-.nctrls{display:flex;gap:3px;opacity:0;transition:opacity .12s}
-.nitem:hover .nctrls{opacity:1}
-.nbtn{font-size:9px;padding:2px 6px;border:1px solid var(--b2);background:transparent;color:var(--text3);cursor:pointer;border-radius:3px;font-family:var(--mono);transition:all .1s}
-.nbtn.kill{border-color:rgba(255,68,68,0.3);color:var(--red)}
-.nbtn:hover{background:var(--surface)}
+  .metric-pill {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: bold;
+    background: rgba(0, 176, 255, 0.1);
+    color: var(--cyan);
+  }
 
-/* ACTION PANEL */
-.arow{display:flex;gap:5px;padding:0 12px 4px}
-.abtn{flex:1;padding:6px 8px;border:1px solid var(--b2);background:var(--bg3);color:var(--text2);font-size:11px;font-family:var(--font);font-weight:600;border-radius:var(--r);cursor:pointer;transition:all .12s;white-space:nowrap}
-.abtn:hover{background:var(--surface);border-color:var(--cyan);color:var(--cyan)}
-.abtn.p{border-color:var(--cyan2);background:rgba(0,176,255,0.07);color:var(--cyan)}
-.abtn.p:hover{background:rgba(0,176,255,0.14)}
-.abtn.d{border-color:rgba(255,68,68,0.25);color:var(--red);background:rgba(255,68,68,0.04)}
-.abtn.d:hover{background:rgba(255,68,68,0.1);border-color:var(--red)}
-.asel{flex:1;padding:5px 7px;background:var(--bg3);border:1px solid var(--b2);color:var(--text2);font-size:11px;font-family:var(--font);border-radius:var(--r)}
-.asel:focus{outline:none;border-color:var(--cyan)}
-
-/* SPLIT BRAIN */
-.sbanner{background:rgba(255,179,0,0.06);border:1px solid rgba(255,179,0,0.28);border-radius:var(--r2);padding:9px 12px;margin:6px 12px;display:none}
-.sbanner.show{display:block;animation:sbp 2s ease-in-out infinite}
-@keyframes sbp{0%,100%{border-color:rgba(255,179,0,0.28)}50%{border-color:var(--amber)}}
-.sb-ttl{font-size:11px;font-weight:700;color:var(--amber);margin-bottom:2px}
-.sb-det{font-size:10px;color:var(--text3);font-family:var(--mono)}
-
-/* VECTOR CLOCK */
-.vcwrap{padding:6px 12px 10px;display:flex;flex-wrap:wrap;gap:3px}
-.vcc{background:var(--bg4);border:1px solid var(--b1);border-radius:4px;padding:2px 5px;font-family:var(--mono);font-size:9px}
-.vcn{color:var(--text3)}
-.vcv{color:var(--cyan);font-weight:600}
-
-/* METRIC GRID */
-.mgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.mcard{background:var(--bg2);border:1px solid var(--b1);border-radius:var(--r2);padding:10px 12px;position:relative;overflow:hidden}
-.mcard::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan2),transparent);opacity:0.5}
-.mlabel{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
-.mval{font-size:23px;font-weight:700;font-family:var(--mono);line-height:1}
-.mval.ok{color:var(--green)}
-.mval.warn{color:var(--amber)}
-.mval.crit{color:var(--red)}
-.mval.blue{color:var(--cyan)}
-.msub{font-size:10px;color:var(--text3);margin-top:3px;font-family:var(--mono)}
-
-/* WEATHER STRIP */
-.weather-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
-.wcard{background:var(--bg2);border:1px solid var(--b1);border-radius:var(--r2);padding:9px 11px;position:relative;overflow:hidden}
-.wcard-icon{font-size:20px;margin-bottom:4px}
-.wcard-val{font-size:18px;font-weight:700;font-family:var(--mono);color:var(--text)}
-.wcard-unit{font-size:10px;color:var(--text3);margin-left:2px}
-.wcard-label{font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--text3);margin-top:3px}
-.wcard-trend{position:absolute;top:7px;right:9px;font-size:10px;font-family:var(--mono);color:var(--text3)}
-.wcard-trend.up{color:var(--red)}
-.wcard-trend.down{color:var(--cyan)}
-.wcard.warning{border-color:rgba(255,179,0,0.35)}
-.wcard.danger{border-color:rgba(255,68,68,0.35);animation:cardBlink 1.4s ease-in-out infinite}
-@keyframes cardBlink{0%,100%{border-color:rgba(255,68,68,0.35)}50%{border-color:var(--red)}}
-
-/* MAP */
-.mapcard{background:var(--bg2);border:1px solid var(--b1);border-radius:var(--r2);overflow:hidden}
-.maphdr{display:flex;align-items:center;justify-content:space-between;padding:9px 12px 7px;border-bottom:1px solid var(--b1)}
-.map-ttl{font-size:11px;font-weight:700;color:var(--text2);letter-spacing:.3px}
-.map-sub{font-size:10px;color:var(--text3);font-family:var(--mono)}
-#island-map{width:100%;height:245px;display:block}
-
-/* RESOURCE BARS */
-.rescard{background:var(--bg2);border:1px solid var(--b1);border-radius:var(--r2);padding:11px 12px}
-.res-ttl{font-size:11px;font-weight:700;color:var(--text2);margin-bottom:9px;display:flex;align-items:center;justify-content:space-between}
-.resrow{margin-bottom:7px}
-.reshdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
-.resname{font-size:11px;font-weight:600;display:flex;align-items:center;gap:5px}
-.resval{font-size:10px;font-family:var(--mono);color:var(--text3)}
-.resbg{height:4px;background:var(--bg3);border-radius:4px;overflow:hidden}
-.resbar{height:100%;border-radius:4px;transition:width 1.2s ease}
-.resbar.ok{background:linear-gradient(90deg,var(--green2),var(--green))}
-.resbar.low{background:linear-gradient(90deg,var(--amber2),var(--amber))}
-.resbar.crit{background:var(--red2);animation:barBlink 1.3s ease-in-out infinite}
-@keyframes barBlink{0%,100%{opacity:1}50%{opacity:.3}}
-
-/* SYNC FEED */
-.synccard{background:var(--bg2);border:1px solid var(--b1);border-radius:var(--r2);padding:10px 12px;flex:1}
-.sync-ttl{font-size:11px;font-weight:700;color:var(--text2);margin-bottom:7px}
-.sentry{font-size:10px;font-family:var(--mono);color:var(--text3);padding:4px 0;border-bottom:1px solid var(--b1);line-height:1.5;display:flex;align-items:center;gap:4px;flex-wrap:wrap}
-.sentry:last-child{border-bottom:none}
-.sf{color:var(--cyan);font-weight:500}
-.st{color:var(--green);font-weight:500}
-.sa{color:var(--amber);font-weight:600}
-
-/* TABS */
-.tabbar{display:flex;border-bottom:1px solid var(--b1);flex-shrink:0}
-.tab{padding:9px 11px;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all .12s;white-space:nowrap}
-.tab:hover{color:var(--text2)}
-.tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
-.tcon{display:none;flex:1;overflow-y:auto;flex-direction:column}
-.tcon.active{display:flex}
-
-/* EVENTS */
-.evlog{flex:1;overflow-y:auto}
-.evitem{padding:6px 12px;border-bottom:1px solid var(--b1);animation:evin .25s ease}
-@keyframes evin{from{opacity:0;transform:translateX(6px)}to{opacity:1;transform:translateX(0)}}
-.evtime{font-family:var(--mono);font-size:9px;color:var(--text3);margin-bottom:1px}
-.evmsg{font-size:11px;color:var(--text2);line-height:1.4}
-.CRISIS .evmsg{color:#ff8080}
-.NODE_DOWN .evmsg{color:var(--red)}
-.NODE_UP .evmsg{color:var(--green)}
-.AUTO_REBALANCE .evmsg{color:var(--cyan)}
-.LEADER_ELECTION .evmsg{color:var(--amber)}
-.SPLIT_BRAIN .evmsg{color:var(--orange)}
-.WEATHER .evmsg{color:var(--teal)}
-.SEISMIC .evmsg{color:var(--purple)}
-.SYSTEM .evmsg{color:var(--text2)}
-
-/* ALERTS */
-.astrip{padding:8px 12px;display:flex;flex-direction:column;gap:5px}
-.aitem{background:rgba(255,68,68,0.05);border:1px solid rgba(255,68,68,0.2);border-radius:var(--r);padding:8px 10px;animation:aslide .3s ease}
-.aitem.hurricane-alert{background:rgba(255,109,0,0.06);border-color:rgba(255,109,0,0.3)}
-@keyframes aslide{from{opacity:0;transform:translateY(-5px)}}
-.ahead{display:flex;align-items:flex-start;justify-content:space-between;gap:6px}
-.aname{color:var(--red);font-weight:700;font-size:11px;margin-bottom:2px}
-.aitem.hurricane-alert .aname{color:var(--orange)}
-.aparish{color:var(--text3);font-size:10px;font-family:var(--mono)}
-.aresolve{font-size:9px;padding:2px 7px;border:1px solid rgba(255,68,68,0.3);background:transparent;color:var(--red);border-radius:4px;cursor:pointer;font-family:var(--mono);flex-shrink:0}
-.aresolve:hover{background:rgba(255,68,68,0.1)}
-#no-alerts{font-size:11px;color:var(--text3);font-family:var(--mono);text-align:center;padding:20px 0}
-
-/* NODE DETAIL */
-.ndetail{padding:12px}
-.ndhdr{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
-.ndname{font-size:15px;font-weight:700;flex:1}
-.ndbadge{font-size:9px;font-family:var(--mono);font-weight:600;padding:2px 7px;border-radius:20px}
-.ndbadge.pr{background:rgba(255,179,0,0.1);color:var(--amber);border:1px solid rgba(255,179,0,0.25)}
-.ndbadge.rp{background:rgba(0,176,255,0.07);color:var(--cyan);border:1px solid rgba(0,176,255,0.18)}
-.ndbadge.of{background:rgba(255,68,68,0.08);color:var(--red);border:1px solid rgba(255,68,68,0.22)}
-.ndstats{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px}
-.ndstat{background:var(--bg3);border-radius:var(--r);padding:7px 9px;border:1px solid var(--b1)}
-.ndstat-l{font-size:9px;color:var(--text3);margin-bottom:2px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px}
-.ndstat-v{font-size:12px;font-family:var(--mono);font-weight:600;color:var(--text)}
-
-/* CONDITIONS */
-.condwrap{padding:11px 12px;display:flex;flex-direction:column;gap:9px;overflow-y:auto}
-.cblock{background:var(--bg3);border:1px solid var(--b1);border-radius:var(--r2);overflow:hidden}
-.cbhdr{display:flex;align-items:center;gap:7px;padding:8px 11px;border-bottom:1px solid var(--b1);background:rgba(0,176,255,0.03)}
-.cbtitle{font-size:11px;font-weight:700;color:var(--text2);flex:1}
-.cbbadge{font-size:9px;font-family:var(--mono);font-weight:600;padding:2px 8px;border-radius:20px}
-.b-ok{background:rgba(0,230,118,0.1);color:var(--green);border:1px solid rgba(0,230,118,0.22)}
-.b-watch{background:rgba(255,179,0,0.1);color:var(--amber);border:1px solid rgba(255,179,0,0.28)}
-.b-warn{background:rgba(255,109,0,0.1);color:var(--orange);border:1px solid rgba(255,109,0,0.28)}
-.b-crit{background:rgba(255,68,68,0.1);color:var(--red);border:1px solid rgba(255,68,68,0.28)}
-.cbody{padding:10px 11px}
-
-/* Hurricane */
-.hcard{display:flex;flex-direction:column;gap:8px}
-.hrow{display:flex;justify-content:space-between;align-items:center}
-.hlabel{font-size:10px;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px}
-.hval{font-size:12px;font-family:var(--mono);font-weight:600;color:var(--text)}
-.catbar-bg{height:7px;background:var(--bg4);border-radius:4px;overflow:hidden;margin-top:5px}
-.catbar-fill{height:100%;border-radius:4px;transition:width 1s ease,background 1s ease}
-
-/* Parish weather */
-.pgrid{display:flex;flex-direction:column;gap:3px}
-.prow{display:grid;grid-template-columns:88px 1fr 58px;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--b1);font-size:10px}
-.prow:last-child{border-bottom:none}
-.pname{color:var(--text2);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pbars{display:flex;flex-direction:column;gap:2px}
-.minibg{height:3px;background:var(--bg4);border-radius:2px;overflow:hidden}
-.minibar{height:100%;border-radius:2px;transition:width .8s ease}
-.minibar.wind{background:var(--teal)}
-.minibar.rain{background:var(--cyan2)}
-.pstat{font-family:var(--mono);font-size:9px;color:var(--text3);text-align:right}
-
-/* Seismic */
-.seislist{display:flex;flex-direction:column;gap:5px}
-.seisev{display:grid;grid-template-columns:42px 1fr 52px;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--b1);font-size:10px}
-.seisev:last-child{border-bottom:none}
-.magbadge{font-family:var(--mono);font-weight:700;font-size:13px;text-align:center;padding:2px 4px;border-radius:4px}
-.mag-minor{color:var(--cyan);background:rgba(0,176,255,0.1)}
-.mag-mod{color:var(--amber);background:rgba(255,179,0,0.1)}
-.mag-major{color:var(--red);background:rgba(255,68,68,0.1)}
-.seisloc{color:var(--text2);font-weight:600}
-.seistime{color:var(--text3);font-family:var(--mono);font-size:9px}
-.seisdep{color:var(--text3);font-family:var(--mono);font-size:9px;text-align:right}
-
-/* Sea state */
-.seagrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.seacell{background:var(--bg4);border-radius:var(--r);padding:8px;border:1px solid var(--b1)}
-.scl{font-size:9px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
-.scv{font-size:15px;font-family:var(--mono);font-weight:700;color:var(--text)}
-.scu{font-size:9px;color:var(--text3)}
-
-/* Flood */
-.floodlist{display:flex;flex-direction:column;gap:4px}
-.floodrow{display:flex;align-items:center;gap:7px;padding:4px 0;border-bottom:1px solid var(--b1)}
-.floodrow:last-child{border-bottom:none}
-.floodname{font-size:11px;font-weight:600;color:var(--text2);flex:1}
-.floodbar-bg{width:60px;height:4px;background:var(--bg4);border-radius:4px;overflow:hidden}
-.floodbar{height:100%;border-radius:4px;transition:width 1s ease}
-.risk-lo{background:var(--green2)}
-.risk-md{background:var(--amber)}
-.risk-hi{background:var(--orange)}
-.risk-ex{background:var(--red2);animation:barBlink 1.2s ease-in-out infinite}
-.floodpct{font-size:10px;font-family:var(--mono);color:var(--text3);width:30px;text-align:right}
-
-/* HURRICANE TRACKER */
-.hurr-tracker{background:var(--bg2);border:1px solid rgba(255,109,0,0.25);border-radius:var(--r2);padding:10px 12px;display:none;animation:hurrGlow 2.5s ease-in-out infinite}
-.hurr-tracker.show{display:block}
-@keyframes hurrGlow{0%,100%{border-color:rgba(255,109,0,0.25)}50%{border-color:var(--orange)}}
-.ht-ttl{font-size:11px;font-weight:700;color:var(--orange);margin-bottom:8px;display:flex;align-items:center;gap:7px}
-.ht-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.ht-cell{background:var(--bg3);border-radius:var(--r);padding:6px 8px;border:1px solid var(--b1)}
-.ht-l{font-size:9px;color:var(--text3);font-family:var(--mono);text-transform:uppercase;margin-bottom:2px}
-.ht-v{font-size:14px;font-family:var(--mono);font-weight:600}
-
-/* TRANSFER MODAL */
-.moverlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:200;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
-.moverlay.open{display:flex}
-.mbox{background:var(--bg3);border:1px solid var(--b2);border-radius:var(--r3);padding:22px;width:375px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
-.mttl{font-size:15px;font-weight:700;margin-bottom:14px;color:var(--text)}
-.mrow{display:flex;gap:6px;margin-bottom:10px}
-.mlab{font-size:11px;color:var(--text3);margin-bottom:4px;font-family:var(--mono)}
-.minput{width:100%;padding:7px 9px;background:var(--bg4);border:1px solid var(--b2);color:var(--text);font-size:12px;font-family:var(--mono);border-radius:var(--r)}
-.minput:focus{outline:none;border-color:var(--cyan)}
-.mbtns{display:flex;gap:6px;margin-top:14px}
-.mbtn{flex:1;padding:8px;border-radius:var(--r);font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--b2);font-family:var(--font);transition:all .12s}
-.mbtn.conf{background:rgba(0,176,255,0.1);color:var(--cyan);border-color:var(--cyan2)}
-.mbtn.conf:hover{background:rgba(0,176,255,0.18)}
-.mbtn.can{background:transparent;color:var(--text3)}
-.mbtn.can:hover{background:var(--surface)}
-
-.scbadge{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-family:var(--mono);font-weight:600;padding:2px 7px;border-radius:3px}
+  .progress-bar-bg { background: #0b1721; height: 5px; border-radius: 2px; overflow: hidden; margin-top: 3px; width: 65px; }
+  .progress-bar-fill { height: 100%; border-radius: 2px; }
 </style>
 </head>
 <body>
 
-<div class="shell">
-
-<!-- TOPBAR -->
-<header class="topbar">
-  <div class="logo">
-    <div class="logo-mark">
-      <svg viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="17" cy="17" r="15" stroke="#00b0ff" stroke-width="1.2" opacity=".4"/>
-        <circle cx="17" cy="17" r="10" stroke="#00b0ff" stroke-width="1.5" opacity=".7"/>
-        <circle cx="17" cy="17" r="4.5" fill="#00b0ff"/>
-        <line x1="17" y1="2" x2="17" y2="7" stroke="#00b0ff" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
-        <line x1="17" y1="27" x2="17" y2="32" stroke="#00b0ff" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
-        <line x1="2" y1="17" x2="7" y2="17" stroke="#00b0ff" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
-        <line x1="27" y1="17" x2="32" y2="17" stroke="#00b0ff" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
-      </svg>
-    </div>
-    <div class="logo-text">
-      <div class="logo-name">IslandPulse</div>
-      <div class="logo-sub">Jamaica Emergency Mesh</div>
-    </div>
+<header>
+  <div class="logo-area">
+    <h1>🇯🇲 IslandPulse v4 <span>// MACRO_FISCAL_STABILIZATION_ENGINE</span></h1>
   </div>
-
-  <div class="storm-alert-bar" id="storm-bar">
-    <span>⚡</span><span id="storm-bar-text">ACTIVE STORM</span>
+  
+  <div class="simulation-ticker">
+    <div class="ticker-item">📅 Date: <span id="sim-date-lbl" class="ticker-val">June 15</span></div>
+    <div class="ticker-item">🌪️ Threat Vector: <span id="sim-weather-lbl" class="ticker-val" style="color:var(--green)">Nominal Grid</span></div>
+    <div class="ticker-item">🏦 Treasury Base: <span id="sim-treasury-lbl" class="ticker-val" style="color:var(--green)">$250.0M USD</span></div>
+    <div class="ticker-item">🔒 CCRIF Pool: <span id="sim-insurance-lbl" class="ticker-val" style="color:var(--purple)">$150.0M USD</span></div>
   </div>
-
-  <div class="spacer"></div>
-
-  <div class="hud-strip">
-    <div class="hpill"><div class="led ok" id="mesh-led"></div><span>Mesh</span><span class="v ok" id="tp-online">14/14</span></div>
-    <div class="hpill"><span>Quorum</span><span class="v" id="tp-quorum">✓ 8+</span></div>
-    <div class="hpill"><span>Syncs</span><span class="v blue" id="tp-sync">0</span></div>
-    <div class="hpill"><span>VClock Σ</span><span class="v blue" id="tp-vclock">0</span></div>
-    <div class="hpill"><span>Alerts</span><span class="v crit" id="tp-alerts">0</span></div>
-  </div>
-  <div class="utclock" id="clock">00:00:00 UTC</div>
 </header>
 
-<!-- SIDEBAR -->
-<aside class="sidebar">
-  <div class="sec">Parish Nodes</div>
-  <div id="node-list"></div>
-
-  <div class="divider" style="margin:6px 0"></div>
-
-  <div class="sec">Crisis Control</div>
-  <div class="arow" style="padding:0 12px 5px">
-    <select class="asel" id="crisis-parish-select"></select>
-  </div>
-  <div class="arow">
-    <select class="asel" id="crisis-type-select">
-      <option value="HURRICANE">🌀 Hurricane</option>
-      <option value="EARTHQUAKE">🌋 Earthquake</option>
-      <option value="FLOODING">🌊 Flash Flooding</option>
-      <option value="GRID_FAILURE">⚡ Grid Failure</option>
-      <option value="SUPPLY_DISRUPTION">📦 Supply Disruption</option>
-      <option value="LANDSLIDE">⛰ Landslide</option>
-      <option value="WILDFIRE">🔥 Wildfire</option>
-    </select>
-  </div>
-  <div class="arow">
-    <button class="abtn d" onclick="triggerTargeted()">⚡ Trigger Crisis</button>
-    <button class="abtn" onclick="triggerRandom()">🎲 Random</button>
-  </div>
-
-  <div class="divider" style="margin:4px 0"></div>
-  <div class="sec">Operations</div>
-  <div class="arow">
-    <button class="abtn p" onclick="openTransferModal()">⇄ Transfer Resources</button>
-  </div>
-  <div class="arow">
-    <button class="abtn p" onclick="globalRebalance()">⚖ Global Rebalance</button>
-    <button class="abtn" onclick="triggerElection()">🗳 Elect</button>
-  </div>
-
-  <div class="divider" style="margin:4px 0"></div>
-  <div class="sbanner" id="sb-banner">
-    <div class="sb-ttl">⚠ SPLIT BRAIN DETECTED</div>
-    <div class="sb-det" id="sb-detail">Quorum lost</div>
-  </div>
-
-  <div class="sec">Vector Clock</div>
-  <div class="vcwrap" id="vclock-display"></div>
-</aside>
-
-<!-- MAIN PANEL -->
-<main class="main">
-  <!-- Metrics -->
-  <div class="mgrid">
-    <div class="mcard"><div class="mlabel">Online Nodes</div><div class="mval ok" id="m-online">14</div><div class="msub">of 14 parishes</div></div>
-    <div class="mcard"><div class="mlabel">Active Alerts</div><div class="mval crit" id="m-alerts">0</div><div class="msub">critical events</div></div>
-    <div class="mcard"><div class="mlabel">Resources Critical</div><div class="mval warn" id="m-crit">0</div><div class="msub">below threshold</div></div>
-    <div class="mcard"><div class="mlabel">Raft Term</div><div class="mval blue" id="m-term">1</div><div class="msub" id="m-leader">Kingston</div></div>
-  </div>
-
-  <!-- Live weather strip -->
-  <div class="weather-strip" id="jm-weather"></div>
-
-  <!-- Hurricane tracker (shown when active) -->
-  <div class="hurr-tracker" id="hurr-tracker">
-    <div class="ht-ttl">🌀 <span id="ht-name">—</span></div>
-    <div class="ht-grid">
-      <div class="ht-cell"><div class="ht-l">Category</div><div class="ht-v" id="ht-cat">—</div></div>
-      <div class="ht-cell"><div class="ht-l">Winds</div><div class="ht-v" id="ht-wind">—</div></div>
-      <div class="ht-cell"><div class="ht-l">Pressure</div><div class="ht-l">Pressure</div><div class="ht-v" id="ht-pres">—</div></div>
-      <div class="ht-cell"><div class="ht-l">Heading</div><div class="ht-v" id="ht-head">—</div></div>
-      <div class="ht-cell"><div class="ht-l">Position</div><div class="ht-v" id="ht-pos">—</div></div>
-      <div class="ht-cell"><div class="ht-l">Intensity</div><div class="ht-v" id="ht-int">—</div></div>
-    </div>
-  </div>
-
-  <!-- Map -->
-  <div class="mapcard">
-    <div class="maphdr">
-      <div>
-        <div class="map-ttl">Jamaica Parish Mesh — Live Status</div>
-        <div class="map-sub" id="map-sub">All 14 parishes connected · Caribbean Sea</div>
+<div class="dashboard-grid">
+  <div class="main-column">
+    <div class="map-card">
+      <div class="map-header">
+        <h3>Dynamic Environmental Telemetry Framework</h3>
+        <span id="system-incident-label" style="font-size:11px; font-family: 'JetBrains Mono', monospace; color:var(--green)">MUNICIPAL STATUS: SECURE</span>
       </div>
-      <div style="display:flex;gap:6px;font-size:9px;font-family:var(--mono);color:var(--text3)">
-        <span id="map-time"></span>
+      
+      <div class="svg-container">
+        <svg class="jamaica-map" viewBox="0 0 1000 420">
+          <line x1="330" y1="0" x2="330" y2="420" class="county-line" />
+          <line x1="680" y1="0" x2="680" y2="420" class="county-line" />
+          
+          <text x="20" y="25" class="county-label">CORNWALL COUNTY DIVISION</text>
+          <text x="350" y="25" class="county-label">MIDDLESEX COUNTY DIVISION</text>
+          <text x="700" y="25" class="county-label">SURREY COUNTY DIVISION</text>
+
+          <g>
+            <path id="map-hanover" class="parish-polygon" d="M40,90 L160,80 L180,130 L60,150 Z" />
+            <text x="70" y="115" class="map-lbl">HANOVER</text>
+          </g>
+          <g>
+            <path id="map-westmoreland" class="parish-polygon" d="M30,160 L180,140 L190,240 L40,250 Z" />
+            <text x="60" y="195" class="map-lbl">WESTMORELAND</text>
+          </g>
+          <g>
+            <path id="map-stJames" class="parish-polygon" d="M170,80 L270,75 L260,140 L190,140 Z" />
+            <text x="195" y="110" class="map-lbl">ST. JAMES</text>
+          </g>
+          <g>
+            <path id="map-trelawny" class="parish-polygon" d="M280,75 L380,85 L350,170 Z" />
+            <text x="295" y="120" class="map-lbl">TRELAWNY</text>
+          </g>
+          <g>
+            <path id="map-stElizabeth" class="parish-polygon" d="M195,245 L320,230 L300,340 L170,320 Z" />
+            <text x="205" y="290" class="map-lbl">ST. ELIZABETH</text>
+          </g>
+
+          <g>
+            <path id="map-stAnn" class="parish-polygon" d="M390,90 L560,105 L530,190 L360,175 Z" />
+            <text x="440" y="140" class="map-lbl">ST. ANN</text>
+          </g>
+          <g>
+            <path id="map-manchester" class="parish-polygon" d="M330,230 L440,220 L440,320 L310,340 Z" />
+            <text x="340" y="275" class="map-lbl">MANCHESTER</text>
+          </g>
+          <g>
+            <path id="map-clarendon" class="parish-polygon" d="M450,220 L560,210 L580,340 L450,330 Z" />
+            <text x="470" y="275" class="map-lbl">CLARENDON</text>
+          </g>
+          <g>
+            <path id="map-stMary" class="parish-polygon" d="M570,110 L680,120 L660,180 L540,190 Z" />
+            <text x="590" y="150" class="map-lbl">ST. MARY</text>
+          </g>
+          <g>
+            <path id="map-stCatherine" class="parish-polygon" d="M550,200 L690,205 L660,320 L590,340 Z" />
+            <text x="580" y="260" class="map-lbl">ST. CATHERINE</text>
+          </g>
+
+          <g>
+            <path id="map-portland" class="parish-polygon" d="M690,125 L820,140 L800,200 L670,185 Z" />
+            <text x="720" y="165" class="map-lbl">PORTLAND</text>
+          </g>
+          <g>
+            <path id="map-stAndrew" class="parish-polygon" d="M700,205 L770,200 L760,250 L680,245 Z" />
+            <text x="705" y="225" class="map-lbl">ST. ANDREW</text>
+          </g>
+          <g>
+            <path id="map-kingston" class="parish-polygon" d="M700,250 L760,255 L755,280 L700,275 Z" />
+            <text x="704" y="268" class="map-lbl" font-size="9">KINGSTON ★</text>
+          </g>
+          <g>
+            <path id="map-stThomas" class="parish-polygon" d="M780,205 L890,220 L860,310 L765,285 Z" />
+            <text x="800" y="255" class="map-lbl">ST. THOMAS</text>
+          </g>
+        </svg>
       </div>
     </div>
-    <svg id="island-map" viewBox="0 0 630 230" preserveAspectRatio="xMidYMid meet"></svg>
-  </div>
 
-  <!-- Resources -->
-  <div class="rescard">
-    <div class="res-ttl">
-      <span id="res-section-title">Aggregate Resource Inventory — All Parishes</span>
-      <span style="font-size:10px;color:var(--text3);font-family:var(--mono)">Live</span>
-    </div>
-    <div id="resource-bars"></div>
-  </div>
-
-  <!-- Sync feed -->
-  <div class="synccard">
-    <div class="sync-ttl">Resource Transfer Log</div>
-    <div id="sync-feed"></div>
-  </div>
-</main>
-
-<!-- RIGHT PANEL -->
-<aside class="rightpanel">
-  <div class="tabbar">
-    <div class="tab active" onclick="switchTab('events')">Events</div>
-    <div class="tab" onclick="switchTab('alerts')">Alerts</div>
-    <div class="tab" onclick="switchTab('detail')">Node</div>
-    <div class="tab" onclick="switchTab('conditions')">Conditions</div>
-  </div>
-
-  <div class="tcon active" id="tab-events">
-    <div class="evlog" id="event-log"></div>
-  </div>
-
-  <div class="tcon" id="tab-alerts">
-    <div class="astrip" id="alert-strip"><div id="no-alerts">✓ No active alerts</div></div>
-  </div>
-
-  <div class="tcon" id="tab-detail">
-    <div class="ndetail" id="node-detail-panel">
-      <div style="font-size:11px;color:var(--text3);font-family:var(--mono);text-align:center;padding:30px 0">Click a parish on the map or node list</div>
+    <div class="infra-card">
+      <table class="infra-table">
+        <thead>
+          <tr>
+            <th>Parish Hub</th>
+            <th>Gasoline Reserve</th>
+            <th>Potable Water</th>
+            <th>Strategic Deep Reserves</th>
+            <th>Response Crews</th>
+            <th>Sovereign Risk Matrix</th>
+          </tr>
+        </thead>
+        <tbody id="ledger-tbody"></tbody>
+      </table>
     </div>
   </div>
 
-  <div class="tcon" id="tab-conditions">
-    <div class="condwrap" id="conditions-panel"></div>
-  </div>
-</aside>
-</div>
-
-<!-- TRANSFER MODAL -->
-<div class="moverlay" id="transfer-modal">
-  <div class="mbox">
-    <div class="mttl">Manual Resource Transfer</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-      <div><div class="mlab">From Parish</div><select class="minput" id="tm-from"></select></div>
-      <div><div class="mlab">To Parish</div><select class="minput" id="tm-to"></select></div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-      <div><div class="mlab">Resource</div>
-        <select class="minput" id="tm-resource">
-          <option value="water">💧 Water (gal)</option>
-          <option value="food">🍚 Food (rations)</option>
-          <option value="medical">🏥 Medical (kits)</option>
-          <option value="fuel">⛽ Fuel (liters)</option>
-          <option value="power">⚡ Power (kWh)</option>
-          <option value="comms">📡 Comms (units)</option>
-        </select>
+  <div class="side-column">
+    <div class="side-card">
+      <h3>Sovereign Fiscal Revenue Ledger</h3>
+      <div style="margin-top: 5px;">
+        <div class="fiscal-metric"><span>✈️ Tourism Enhancement Tax (TEF):</span><span style="color:var(--green)">+$1.4M / tick</span></div>
+        <div class="fiscal-metric"><span>🚢 Port Authority Import Duties:</span><span style="color:var(--green)">+$850K / tick</span></div>
+        <div class="fiscal-metric"><span>🛍️ General Consumption Tax (GCT):</span><span style="color:var(--green)">+$2.1M / tick</span></div>
+        <div class="fiscal-metric"><span>📉 Active Infrastructure Outlay:</span><span id="fiscal-outlay" style="color:var(--text-muted)">$0 / tick</span></div>
       </div>
-      <div><div class="mlab">Amount</div><input type="number" class="minput" id="tm-amount" value="5000" min="100"></div>
     </div>
-    <div class="mbtns">
-      <button class="mbtn can" onclick="closeTransferModal()">Cancel</button>
-      <button class="mbtn conf" onclick="executeTransfer()">Execute Transfer</button>
+
+    <div class="side-card">
+      <h3>Macro Strategic Parameters</h3>
+      <div style="font-size: 11.5px; color: var(--text-muted); line-height: 1.5; display:flex; flex-direction:column; gap:6px;">
+        <div>📈 **Tourism Fiscal Pipeline:** Revenue is continuously added to the Consolidated Treasury from cruise arrivals, airport departures, and TEF levies automatically.</div>
+        <div>⚙️ **Automated Capital Procurement:** When parish pipelines fall into critical failure loops, the Treasury triggers an automatic purchase request—buying clean water payloads and deploying equipment lines instantly.</div>
+      </div>
+    </div>
+
+    <div class="side-card" style="flex:1;">
+      <h3>Operational Logs & Fiscal Audit Stream</h3>
+      <div class="list-container" id="log-box"></div>
     </div>
   </div>
 </div>
 
 <script>
-// ─────────────────────────────────────────────
-// DATA DEFINITIONS
-// ─────────────────────────────────────────────
+  // Timeline Calendar State Arrays
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  let currentMonthIndex = 5; // June (Start of True Caribbean Hurricane Window)
+  let currentDay = 1;
+  
+  // Fiscal State Variables
+  let sovereignTreasuryFunds = 250000000; // Starting baseline portfolio ($250M USD)
+  let parametricInsurancePool = 150000000; // Parametric Risk Cover Pool ($150M USD)
+  const BASE_MAXES = { gasoline: 40000, water: 80000, crews: 60 };
 
-const PARISHES = {
-  kingston:     {id:'kingston',    name:'Kingston',     mapX:390, mapY:172, pop:670000, region:'southeast', coastalRisk:'high'},
-  stAndrew:     {id:'stAndrew',    name:'St. Andrew',   mapX:400, mapY:105, pop:572000, region:'southeast', coastalRisk:'medium'},
-  stThomas:     {id:'stThomas',    name:'St. Thomas',   mapX:478, mapY:138, pop:95000,  region:'east',      coastalRisk:'high'},
-  portland:     {id:'portland',    name:'Portland',     mapX:438, mapY:68,  pop:81000,  region:'northeast', coastalRisk:'high'},
-  stMary:       {id:'stMary',      name:'St. Mary',     mapX:370, mapY:60,  pop:115000, region:'northeast', coastalRisk:'high'},
-  stAnn:        {id:'stAnn',       name:'St. Ann',      mapX:295, mapY:60,  pop:174000, region:'north',     coastalRisk:'high'},
-  trelawny:     {id:'trelawny',    name:'Trelawny',     mapX:247, mapY:72,  pop:76000,  region:'north',     coastalRisk:'high'},
-  stJames:      {id:'stJames',     name:'St. James',    mapX:204, mapY:85,  pop:184000, region:'northwest', coastalRisk:'high'},
-  hanover:      {id:'hanover',     name:'Hanover',      mapX:150, mapY:108, pop:70000,  region:'west',      coastalRisk:'high'},
-  westmoreland: {id:'westmoreland',name:'Westmoreland', mapX:115, mapY:158, pop:145000, region:'west',      coastalRisk:'high'},
-  stElizabeth:  {id:'stElizabeth', name:'St. Elizabeth',mapX:163, mapY:150, pop:151000, region:'southwest', coastalRisk:'medium'},
-  manchester:   {id:'manchester',  name:'Manchester',   mapX:228, mapY:128, pop:189000, region:'central',   coastalRisk:'low'},
-  clarendon:    {id:'clarendon',   name:'Clarendon',    mapX:307, mapY:128, pop:246000, region:'central',   coastalRisk:'low'},
-  stCatherine:  {id:'stCatherine', name:'St. Catherine',mapX:356, mapY:148, pop:519000, region:'southeast', coastalRisk:'medium'},
-};
-
-const RESOURCE_TYPES = {
-  water:   {icon:'💧', label:'Water',   unit:'gal',    max:80000,  nominal:50000, critical:5000},
-  food:    {icon:'🍚', label:'Food',    unit:'rations', max:4000,  nominal:2000,  critical:200},
-  medical: {icon:'🏥', label:'Medical', unit:'kits',   max:1200,   nominal:500,   critical:50},
-  fuel:    {icon:'⛽', label:'Fuel',    unit:'L',      max:30000,  nominal:15000, critical:1000},
-  power:   {icon:'⚡', label:'Power',   unit:'kWh',    max:20000,  nominal:8000,  critical:500},
-  comms:   {icon:'📡', label:'Comms',   unit:'units',  max:250,    nominal:100,   critical:10},
-};
-
-const CRISIS_TYPES = {
-  HURRICANE:         {name:'Hurricane', icon:'🌀', severity:'critical', drain:{water:.35,food:.25,fuel:.45,power:.40,comms:.30}},
-  EARTHQUAKE:        {name:'Earthquake',icon:'🌋', severity:'critical', drain:{medical:.55,comms:.65,power:.35,fuel:.20}},
-  FLOODING:          {name:'Flash Flooding',icon:'🌊',severity:'high', drain:{water:.15,power:.55,food:.20,comms:.25}},
-  GRID_FAILURE:      {name:'Grid Failure',icon:'⚡',severity:'critical', drain:{power:.85,comms:.35}},
-  SUPPLY_DISRUPTION: {name:'Supply Disruption',icon:'📦',severity:'medium', drain:{food:.45,medical:.35,water:.15}},
-  LANDSLIDE:         {name:'Landslide',  icon:'⛰', severity:'high',     drain:{comms:.5, fuel:.3, medical:.3, food:.2}},
-  WILDFIRE:          {name:'Wildfire',   icon:'🔥', severity:'high',     drain:{water:.5, medical:.35, fuel:.25, comms:.2}},
-};
-
-const STORM_NAMES = ['Ana','Bill','Claudette','Danny','Elsa','Fred','Grace','Henri','Ida','Julian','Kate','Larry','Mindy','Nicholas','Odette','Peter','Rose','Sam','Teresa','Victor'];
-
-// ─────────────────────────────────────────────
-// MESH STATE
-// ─────────────────────────────────────────────
-
-let tickCount = 0, selectedNode = null, activeTab = 'events';
-
-const mesh = {
-  nodes: {}, resources: {}, vclock: {}, events: [], alerts: [], syncs: [], splitBrain: false,
-};
-
-const conditions = {
-  hurricane: {
-    active:false, name:'No Active Storms', category:0, windSpeed:0, pressure:1013,
-    lat:17.0, lng:-79.5, track:[], heading:'NW', intensity:'none', lastUpdate:Date.now()
-  },
-  weather:{}, seismic:[], tropicalWaves:0,
-  seaState:{waveHeight:0.8, swellPeriod:8, seaSurfaceTemp:28.5, seaLevel:0.1, tidalStatus:'Normal'},
-  floodRisk:{},
-};
-
-// ─────────────────────────────────────────────
-// INIT
-// ─────────────────────────────────────────────
-
-function initMesh() {
-  Object.keys(PARISHES).forEach(id => {
-    mesh.vclock[id] = 0;
-    mesh.nodes[id] = {
-      id, name:PARISHES[id].name, status:'online',
-      role:id==='kingston'?'primary':'replica', isLeader:id==='kingston',
-      term:1, heartbeatCount:0,
-      uptime:Math.floor(Math.random()*86400*14),
-      networkLatency:Math.floor(Math.random()*40)+5,
-      syncedWith:[], pendingWrites:0,
-    };
-    mesh.resources[id] = {};
-    Object.keys(RESOURCE_TYPES).forEach(rt => {
-      const cfg = RESOURCE_TYPES[rt];
-      const ratio = id==='kingston' ? 0.88 : 0.35 + Math.random()*0.45;
-      mesh.resources[id][rt] = {current:Math.floor(cfg.max*ratio), capacity:cfg.max, inbound:0, outbound:0, trend:'stable'};
-    });
-  });
-
-  initConditions();
-
-  const opts = Object.values(PARISHES).map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
-  document.getElementById('tm-from').innerHTML = opts;
-  document.getElementById('tm-to').innerHTML = opts;
-  document.getElementById('crisis-parish-select').innerHTML = '<option value="">— Select Parish —</option>' + opts;
-
-  logEvent('SYSTEM','🟢 IslandPulse mesh initialized — 14 Jamaica parish nodes online');
-  logEvent('SYSTEM','📡 Vector clock protocol active — Lamport causal consistency enabled');
-  logEvent('SYSTEM','🗳 Kingston designated primary coordinator (Raft term 1)');
-  logEvent('SYSTEM','🛡 Quorum threshold: 8/14 nodes required for write consensus');
-  logEvent('WEATHER','🌤 Jamaica Meteorological Service feed connected — Live data active');
-  logEvent('SEISMIC','🌍 USGS Caribbean seismic monitor feed active');
-}
-
-function initConditions() {
-  Object.keys(PARISHES).forEach(id => {
-    const cr = PARISHES[id].coastalRisk;
-    conditions.weather[id] = {
-      windSpeed:Math.floor(15+Math.random()*20), windDir:['N','NE','E','SE','S','SW','W','NW'][Math.floor(Math.random()*8)],
-      rainfall:Math.floor(Math.random()*18), humidity:Math.floor(70+Math.random()*22),
-      temp:Math.floor(26+Math.random()*6), visibility:Math.floor(8+Math.random()*7),
-      condition:['Sunny','Partly Cloudy','Cloudy','Scattered Showers','Thunderstorms'][Math.floor(Math.random()*3)],
-      uvIndex:Math.floor(6+Math.random()*5),
-    };
-    const base = cr==='high'?35:cr==='medium'?20:12;
-    conditions.floodRisk[id] = base + Math.floor(Math.random()*15);
-  });
-  // Seed seismic history — realistic Jamaica fault lines
-  const locs = ['Kingston Basin','Blue Mountains Fault','Clarendon Plains','Portland Ridge',
-    'North Coast Shelf','Morant Bay','Port Royal Fault','Wagwater Belt','Duanvale Fault','Caribbean Plate Boundary',
-    'Plantain Garden Fault','Central Inlier','Montego Bay Shelf'];
-  for(let i=0;i<8;i++){
-    conditions.seismic.push({
-      id:i, magnitude:parseFloat((1.2+Math.random()*4.5).toFixed(1)),
-      location:locs[Math.floor(Math.random()*locs.length)],
-      depth:Math.floor(5+Math.random()*80),
-      ts:Date.now()-Math.floor(Math.random()*86400000),
-    });
-  }
-  conditions.seismic.sort((a,b)=>b.ts-a.ts);
-}
-
-// ─────────────────────────────────────────────
-// LOGIC
-// ─────────────────────────────────────────────
-
-function vTick(id){mesh.vclock[id]=(mesh.vclock[id]||0)+1}
-function vMerge(a,b){Object.keys(b).forEach(k=>{a[k]=Math.max(a[k]||0,b[k]||0)})}
-
-function transferResource(fromId,toId,rt,amount){
-  const fr=mesh.resources[fromId][rt], to=mesh.resources[toId][rt], cfg=RESOURCE_TYPES[rt];
-  const actual=Math.min(amount,fr.current,cfg.max-to.current);
-  if(actual<=0) return 0;
-  fr.current-=actual; to.current+=actual; fr.outbound+=actual; to.inbound+=actual;
-  vTick(fromId); vTick(toId);
-  mesh.syncs.unshift({ts:Date.now(),fromId,toId,fromName:PARISHES[fromId].name,toName:PARISHES[toId].name,resource:rt,amount:actual});
-  if(mesh.syncs.length>50) mesh.syncs.pop();
-  return actual;
-}
-
-function triggerCrisis(parishId, type) {
-  const p=PARISHES[parishId], crisis=CRISIS_TYPES[type];
-  Object.keys(crisis.drain).forEach(rt=>{
-    if(mesh.resources[parishId][rt]){
-      const cur=mesh.resources[parishId][rt].current;
-      mesh.resources[parishId][rt].current=Math.max(0,Math.floor(cur*(1-crisis.drain[rt])));
-      mesh.resources[parishId][rt].trend='critical';
-    }
-  });
-
-  if(type==='HURRICANE'){
-    const cat=2+Math.floor(Math.random()*3);
-    conditions.hurricane.active=true;
-    conditions.hurricane.name='Hurricane '+STORM_NAMES[Math.floor(Math.random()*STORM_NAMES.length)];
-    conditions.hurricane.category=cat;
-    conditions.hurricane.windSpeed=64+cat*18+Math.floor(Math.random()*20);
-    conditions.hurricane.pressure=920+Math.floor(Math.random()*30);
-    conditions.hurricane.intensity=cat>=4?'major':'moderate';
-    conditions.hurricane.heading=['NW','NNW','N','WNW'][Math.floor(Math.random()*4)];
-    conditions.hurricane.lat=16.5+Math.random()*2; conditions.hurricane.lng=-78+Math.random()*3;
-    conditions.weather[parishId].windSpeed=conditions.hurricane.windSpeed;
-    conditions.weather[parishId].rainfall=120+Math.floor(Math.random()*100);
-    conditions.weather[parishId].condition='Hurricane';
-    conditions.floodRisk[parishId]=Math.min(100,conditions.floodRisk[parishId]+45);
-    document.getElementById('hurr-tracker').classList.add('show');
-    document.getElementById('storm-bar').classList.add('show');
-    document.getElementById('storm-bar-text').textContent=`⚡ ${conditions.hurricane.name.toUpperCase()} — CAT ${cat} — ${conditions.hurricane.windSpeed}mph WINDS`;
-    logEvent('WEATHER',`🌀 ${conditions.hurricane.name} makes landfall at ${p.name} — Cat ${cat} · ${conditions.hurricane.windSpeed}mph winds · ${conditions.hurricane.pressure}mb`);
-  } else if(type==='FLOODING'){
-    conditions.weather[parishId].rainfall=150+Math.floor(Math.random()*100);
-    conditions.floodRisk[parishId]=Math.min(100,conditions.floodRisk[parishId]+35);
-    logEvent('WEATHER',`🌊 Flash flood emergency issued for ${p.name} — River levels critical · Roads impassable`);
-  } else if(type==='EARTHQUAKE'){
-    const mag=4.5+Math.random()*2.5;
-    conditions.seismic.unshift({id:Date.now(),magnitude:parseFloat(mag.toFixed(1)),location:p.name+' Region',depth:Math.floor(5+Math.random()*25),ts:Date.now()});
-    if(conditions.seismic.length>15) conditions.seismic.pop();
-    logEvent('SEISMIC',`🌋 M${mag.toFixed(1)} earthquake near ${p.name} — Depth: ${Math.floor(5+Math.random()*25)}km · Tsunami advisory issued`);
-  } else if(type==='GRID_FAILURE'){
-    logEvent('WEATHER',`⚡ Grid failure cascade in ${p.name} — ${Math.floor(60+Math.random()*35)}% of parish without power`);
-  } else if(type==='LANDSLIDE'){
-    logEvent('WEATHER',`⛰ Landslide alert: ${p.name} Blue Mountains approach — Roads blocked, comms severed`);
-  } else if(type==='WILDFIRE'){
-    logEvent('WEATHER',`🔥 Wildfire spreading in ${p.name} — ${Math.floor(200+Math.random()*800)} acres burned, evacuation order issued`);
-  } else {
-    logEvent('CRISIS',`📦 Supply chain disruption affecting ${p.name} — Port delays expected`);
-  }
-
-  const alert={id:Date.now()+Math.random(),ts:Date.now(),parish:parishId,parishName:p.name,type,name:crisis.name,active:true,severity:crisis.severity};
-  mesh.alerts.unshift(alert);
-  logEvent('CRISIS',`🚨 ${crisis.icon} ${crisis.name} — ${p.name}: Emergency resources critically depleted`);
-}
-
-function electLeader(failedId){
-  const cands=Object.values(mesh.nodes).filter(n=>n.status==='online'&&n.id!==failedId);
-  if(!cands.length) return;
-  const winner=cands.sort((a,b)=>b.heartbeatCount-a.heartbeatCount)[0];
-  const term=Math.max(...Object.values(mesh.nodes).map(n=>n.term))+1;
-  Object.values(mesh.nodes).forEach(n=>{n.isLeader=false;if(n.id!==winner.id)n.role='replica'});
-  winner.isLeader=true; winner.role='primary'; winner.term=term;
-  logEvent('LEADER_ELECTION',`🗳 Raft election (term ${term}): ${winner.name} elected as new primary coordinator`);
-}
-
-function checkSplitBrain(){
-  const online=Object.values(mesh.nodes).filter(n=>n.status==='online').length;
-  const total=Object.keys(mesh.nodes).length;
-  const quorum=Math.ceil(total/2)+1;
-  mesh.splitBrain=online<quorum;
-  const banner=document.getElementById('sb-banner');
-  if(mesh.splitBrain){
-    banner.classList.add('show');
-    document.getElementById('sb-detail').textContent=`${online}/${total} reachable — quorum requires ${quorum}`;
-    logEvent('SPLIT_BRAIN',`🔀 SPLIT BRAIN: Only ${online}/${total} nodes reachable — Entering read-only mode`);
-  } else {
-    banner.classList.remove('show');
-  }
-}
-
-// ─────────────────────────────────────────────
-// SIMULATION TICK
-// ─────────────────────────────────────────────
-
-function simulationTick(){
-  tickCount++;
-  let syncCount=0;
-
-  Object.keys(mesh.nodes).forEach(id=>{
-    const node=mesh.nodes[id];
-    node.heartbeatCount++;
-    node.uptime++;
-    if(node.status!=='online') return;
-    node.networkLatency=Math.max(5,Math.min(280,node.networkLatency+(Math.random()*10-5)));
-
-    Object.keys(RESOURCE_TYPES).forEach(rt=>{
-      const r=mesh.resources[id][rt], cfg=RESOURCE_TYPES[rt];
-      // Population-weighted drain
-      const popMult=(PARISHES[id].pop/250000)*0.8+0.5;
-      const drain=Math.floor(cfg.nominal*0.016*popMult*(0.7+Math.random()*0.6));
-      r.current=Math.max(0,r.current-drain);
-      r.trend=r.current<cfg.critical?'critical':r.current<cfg.nominal*0.38?'low':'stable';
-    });
-
-    // Hurricane causes ongoing drainage
-    if(conditions.hurricane.active){
-      const cat=conditions.hurricane.category;
-      ['water','food','fuel','power'].forEach(rt=>{
-        if(mesh.resources[id][rt]){
-          mesh.resources[id][rt].current=Math.max(0,mesh.resources[id][rt].current-Math.floor(RESOURCE_TYPES[rt].nominal*0.003*cat));
-        }
-      });
-    }
-
-    const partners=Object.keys(mesh.nodes).filter(k=>k!==id&&mesh.nodes[k].status==='online');
-    if(partners.length&&Math.random()<0.28){
-      const partner=partners[Math.floor(Math.random()*partners.length)];
-      vTick(id); vMerge(mesh.vclock,mesh.vclock);
-      node.syncedWith=[partner]; syncCount++;
-    }
-    if(node.pendingWrites>0) node.pendingWrites=Math.max(0,node.pendingWrites-2);
-  });
-
-  // Random node fluctuation
-  if(Math.random()<0.04){
-    const ids=Object.keys(mesh.nodes).filter(id=>!mesh.nodes[id].isLeader);
-    if(ids.length){
-      const id=ids[Math.floor(Math.random()*ids.length)];
-      const n=mesh.nodes[id];
-      if(n.status==='online'&&Math.random()<0.25){
-        n.status='degraded';
-        logEvent('NODE_DEGRADED',`🟡 ${PARISHES[id].name} — intermittent connectivity, partial mesh sync`);
-      } else if(n.status==='degraded'){
-        n.status='online';
-        n.pendingWrites=Math.floor(Math.random()*18)+3;
-        logEvent('NODE_UP',`🟢 ${PARISHES[id].name} reconnected — syncing ${n.pendingWrites} pending writes`);
-      }
-    }
-  }
-
-  // Auto-rebalance (emergency threshold)
-  Object.keys(mesh.resources).forEach(toId=>{
-    if(mesh.nodes[toId].status!=='online') return;
-    Object.keys(RESOURCE_TYPES).forEach(rt=>{
-      const cfg=RESOURCE_TYPES[rt], toRes=mesh.resources[toId][rt];
-      if(toRes.current<cfg.critical*1.5){
-        const donors=Object.keys(mesh.resources)
-          .filter(fId=>fId!==toId&&mesh.nodes[fId].status==='online'&&mesh.resources[fId][rt].current>cfg.nominal)
-          .sort((a,b)=>mesh.resources[b][rt].current-mesh.resources[a][rt].current);
-        if(donors.length){
-          const amount=Math.floor((mesh.resources[donors[0]][rt].current-cfg.nominal)*0.22);
-          if(amount>50){
-            const actual=transferResource(donors[0],toId,rt,amount);
-            if(actual) logEvent('AUTO_REBALANCE',`📦 ${cfg.icon} Auto-rebalance: ${actual.toLocaleString()} ${cfg.unit} → ${PARISHES[toId].name} from ${PARISHES[donors[0]].name}`);
-          }
-        }
-      }
-    });
-  });
-
-  // Conditions simulation
-  simulateConditions();
-  checkSplitBrain();
-
-  document.getElementById('tp-sync').textContent=syncCount;
-  document.getElementById('tp-vclock').textContent=Object.values(mesh.vclock).reduce((s,v)=>s+v,0);
-
-  render();
-}
-
-function simulateConditions(){
-  Object.keys(PARISHES).forEach(id=>{
-    const w=conditions.weather[id];
-    w.windSpeed=Math.max(5,Math.min(220,w.windSpeed+(Math.random()*5-2.5)));
-    w.rainfall=Math.max(0,Math.min(300,w.rainfall+(Math.random()*7-3.5)));
-    w.humidity=Math.max(45,Math.min(100,w.humidity+(Math.random()*3-1.5)));
-    w.temp=Math.max(22,Math.min(40,w.temp+(Math.random()*0.5-0.25)));
-    // Flood risk drift
-    const base=PARISHES[id].coastalRisk==='high'?0.03:PARISHES[id].coastalRisk==='medium'?0.01:-0.02;
-    conditions.floodRisk[id]=Math.max(2,Math.min(100,conditions.floodRisk[id]+base*(Math.random()*4-1)));
-  });
-
-  // Hurricane movement & decay
-  if(conditions.hurricane.active){
-    conditions.hurricane.lat+=0.08+Math.random()*0.1;
-    conditions.hurricane.lng+=0.05+Math.random()*0.08;
-    conditions.hurricane.windSpeed=Math.max(0,conditions.hurricane.windSpeed-(Math.random()*2));
-    conditions.hurricane.pressure=Math.min(1013,conditions.hurricane.pressure+(Math.random()*1.5));
-    if(conditions.hurricane.windSpeed<35){
-      conditions.hurricane.active=false;
-      conditions.hurricane.category=0;
-      document.getElementById('hurr-tracker').classList.remove('show');
-      document.getElementById('storm-bar').classList.remove('show');
-      logEvent('WEATHER',`✅ ${conditions.hurricane.name} dissipated — Tropical depression weakening offshore`);
-    }
-    // Update category based on wind
-    const ws=conditions.hurricane.windSpeed;
-    conditions.hurricane.category=ws>157?5:ws>130?4:ws>111?3:ws>96?2:ws>64?1:0;
-  }
-
-  // Occasional tropical waves (Jamaica specific)
-  if(Math.random()<0.005){
-    conditions.tropicalWaves++;
-    logEvent('WEATHER',`🌊 Tropical wave #${conditions.tropicalWaves} crossing Caribbean — Monitoring for development`);
-  }
-
-  // Seismic background noise (Jamaica sits on active fault lines)
-  if(Math.random()<0.015){
-    const locs=['Kingston Basin','Blue Mountains','North Coast','Portland Ridge','Wagwater Fault','Port Royal Fault'];
-    const mag=parseFloat((1.0+Math.random()*2.8).toFixed(1));
-    conditions.seismic.unshift({id:Date.now(),magnitude:mag,location:locs[Math.floor(Math.random()*locs.length)],depth:Math.floor(5+Math.random()*40),ts:Date.now()});
-    if(conditions.seismic.length>15) conditions.seismic.pop();
-    if(mag>=3.0) logEvent('SEISMIC',`🌍 M${mag} micro-seismic event — ${locs[Math.floor(Math.random()*locs.length)]}`);
-  }
-
-  // Sea state fluctuation
-  if(conditions.hurricane.active){
-    conditions.seaState.waveHeight=Math.min(15,conditions.seaState.waveHeight+Math.random()*0.5);
-  } else {
-    conditions.seaState.waveHeight=Math.max(0.4,Math.min(4,conditions.seaState.waveHeight+(Math.random()*0.3-0.15)));
-  }
-  conditions.seaState.seaSurfaceTemp=Math.max(26,Math.min(31,conditions.seaState.seaSurfaceTemp+(Math.random()*0.1-0.05)));
-}
-
-// ─────────────────────────────────────────────
-// RENDER
-// ─────────────────────────────────────────────
-
-function render(){
-  renderNodeList();
-  renderVclock();
-  renderMetrics();
-  renderMap();
-  renderResourceBars();
-  renderSyncFeed();
-  renderEventLog();
-  renderAlerts();
-  renderWeatherStrip();
-  renderHurricaneTracker();
-  if(activeTab==='detail'&&selectedNode) renderNodeDetail(selectedNode);
-  if(activeTab==='conditions') renderConditions();
-}
-
-function renderNodeList(){
-  document.getElementById('node-list').innerHTML = Object.values(PARISHES).map(p=>{
-    const n=mesh.nodes[p.id];
-    const hasAlert=mesh.alerts.some(a=>a.active&&a.parish===p.id);
-    const sels=selectedNode===p.id?' active':'';
-    const lead=n.isLeader?' leader':'';
-    return `<div class="nitem${sels}${lead}" onclick="selectNode('${p.id}')">
-      <div class="nled ${n.status}"></div>
-      <div class="ninfo">
-        <div class="nname">${p.name}</div>
-        <div class="nmeta">${n.role} · ${Math.round(n.networkLatency)}ms${hasAlert?' 🚨':''}</div>
-      </div>
-      ${hasAlert?`<span class="nbadge crit">ALERT</span>`:''}
-      <div class="nctrls">
-        ${n.status==='online'
-          ?`<button class="nbtn kill" onclick="event.stopPropagation();setNodeStatus('${p.id}','offline')">✕</button>
-             <button class="nbtn" onclick="event.stopPropagation();setNodeStatus('${p.id}','degraded')">~</button>`
-          :`<button class="nbtn" onclick="event.stopPropagation();setNodeStatus('${p.id}','online')">↑</button>`}
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function renderVclock(){
-  document.getElementById('vclock-display').innerHTML=Object.entries(mesh.vclock).map(([k,v])=>
-    `<span class="vcc"><span class="vcn">${k.slice(0,3)}</span><span class="vcv"> ${v}</span></span>`
-  ).join('');
-}
-
-function renderMetrics(){
-  const online=Object.values(mesh.nodes).filter(n=>n.status==='online').length;
-  const offOrDeg=Object.values(mesh.nodes).filter(n=>n.status!=='online').length;
-  const activeAlerts=mesh.alerts.filter(a=>a.active).length;
-  let critCount=0;
-  Object.values(mesh.resources).forEach(r=>Object.values(r).forEach(res=>{if(res.trend==='critical')critCount++}));
-  const leader=Object.values(mesh.nodes).find(n=>n.isLeader);
-  const term=leader?leader.term:1;
-
-  const onlineEl=document.getElementById('m-online');
-  onlineEl.textContent=online;
-  onlineEl.className='mval '+(online<8?'crit':online<11?'warn':'ok');
-
-  const alertEl=document.getElementById('m-alerts');
-  alertEl.textContent=activeAlerts;
-  alertEl.className='mval '+(activeAlerts>2?'crit':activeAlerts>0?'warn':'ok');
-
-  const critEl=document.getElementById('m-crit');
-  critEl.textContent=critCount;
-  critEl.className='mval '+(critCount>10?'crit':critCount>4?'warn':'ok');
-
-  document.getElementById('m-term').textContent=term;
-  document.getElementById('m-leader').textContent=(leader?leader.name:'None')+' (primary)';
-
-  const ledEl=document.getElementById('mesh-led');
-  ledEl.className='led '+(online<8?'crit':online<11?'warn':'ok');
-
-  const onlineInfo=document.getElementById('tp-online');
-  onlineInfo.textContent=`${online}/14`;
-  onlineInfo.className='v '+(online<8?'crit':online<11?'warn':'ok');
-
-  document.getElementById('tp-alerts').textContent=activeAlerts;
-  document.getElementById('tp-quorum').textContent=online>=8?'✓ 8+':'✗ LOST';
-
-  document.getElementById('map-time').textContent=new Date().toISOString().slice(11,19)+' UTC';
-}
-
-function renderWeatherStrip(){
-  // Show Jamaica-wide averages + key metrics
-  const weathers=Object.values(conditions.weather);
-  const avgTemp=(weathers.reduce((s,w)=>s+w.temp,0)/weathers.length).toFixed(1);
-  const maxWind=Math.max(...weathers.map(w=>w.windSpeed)).toFixed(0);
-  const maxRain=Math.max(...weathers.map(w=>w.rainfall)).toFixed(0);
-  const avgHumid=(weathers.reduce((s,w)=>s+w.humidity,0)/weathers.length).toFixed(0);
-  const avgUV=(weathers.reduce((s,w)=>s+(w.uvIndex||8),0)/weathers.length).toFixed(1);
-  const sst=conditions.seaState.seaSurfaceTemp.toFixed(1);
-
-  const windClass=maxWind>100?'danger':maxWind>50?'warning':'';
-  const rainClass=maxRain>100?'danger':maxRain>50?'warning':'';
-
-  document.getElementById('jm-weather').innerHTML=`
-    <div class="wcard"><div class="wcard-icon">🌡</div><div class="wcard-val">${avgTemp}<span class="wcard-unit">°C</span></div><div class="wcard-label">Avg Temp</div></div>
-    <div class="wcard ${windClass}"><div class="wcard-icon">💨</div><div class="wcard-val">${maxWind}<span class="wcard-unit">mph</span></div><div class="wcard-label">Max Winds</div><div class="wcard-trend ${maxWind>50?'up':'down'}">${maxWind>50?'↑':'→'}</div></div>
-    <div class="wcard ${rainClass}"><div class="wcard-icon">🌧</div><div class="wcard-val">${maxRain}<span class="wcard-unit">mm</span></div><div class="wcard-label">Max Rainfall</div></div>
-    <div class="wcard"><div class="wcard-icon">🌊</div><div class="wcard-val">${conditions.seaState.waveHeight.toFixed(1)}<span class="wcard-unit">m</span></div><div class="wcard-label">Wave Height</div></div>
-    <div class="wcard"><div class="wcard-icon">🌡</div><div class="wcard-val">${sst}<span class="wcard-unit">°C</span></div><div class="wcard-label">Sea Surface Temp</div></div>
-  `;
-}
-
-function renderHurricaneTracker(){
-  if(!conditions.hurricane.active) return;
-  const h=conditions.hurricane;
-  document.getElementById('ht-name').textContent=h.name+` (Category ${h.category})`;
-  document.getElementById('ht-cat').textContent='Cat '+h.category;
-  document.getElementById('ht-wind').textContent=Math.round(h.windSpeed)+'mph';
-  document.getElementById('ht-pres').textContent=Math.round(h.pressure)+'mb';
-  document.getElementById('ht-head').textContent=h.heading;
-  document.getElementById('ht-pos').textContent=h.lat.toFixed(1)+'°N '+Math.abs(h.lng).toFixed(1)+'°W';
-  document.getElementById('ht-int').textContent=h.intensity.charAt(0).toUpperCase()+h.intensity.slice(1);
-}
-
-// ─────────────────────────────────────────────
-// MAP RENDER
-// ─────────────────────────────────────────────
-
-function renderMap(){
-  const svg=document.getElementById('island-map');
-
-  const island=`M 50,148 C 55,140 62,131 70,124 C 78,117 86,112 96,107 C 106,102 116,100 124,97
-    C 133,94 142,92 150,88 C 158,84 163,78 170,73 C 178,68 186,64 196,61
-    C 206,58 216,56 228,56 C 240,56 252,57 263,58 C 274,59 283,61 292,60
-    C 302,59 313,55 326,52 C 339,49 353,47 365,47 C 377,47 390,49 401,52
-    C 412,55 421,59 431,62 C 441,65 451,67 462,68 C 473,69 483,70 491,73
-    C 499,76 505,81 511,88 C 517,95 521,104 524,113 C 527,122 528,132 526,142
-    C 524,152 519,160 511,165 C 503,170 494,172 483,173 C 472,174 460,173 448,171
-    C 436,169 424,167 411,166 C 398,165 385,165 372,166 C 359,167 345,170 330,172
-    C 315,174 299,176 283,177 C 267,178 250,178 234,176 C 218,174 203,170 188,168
-    C 173,166 158,164 144,162 C 130,160 117,158 105,153 C 93,148 82,142 70,136
-    C 62,131 54,142 50,148 Z`;
-
-  const parishRegions={
-    hanover:`M 50,148 70,124 96,107 116,140 86,155 Z`,
-    westmoreland:`M 86,155 116,140 140,158 112,175 90,172 Z`,
-    stElizabeth:`M 116,140 96,107 150,88 196,103 178,155 140,158 Z`,
-    manchester:`M 196,103 150,88 228,56 263,58 265,140 240,155 Z`,
-    clarendon:`M 265,140 263,58 326,52 365,100 330,158 Z`,
-    stCatherine:`M 330,158 365,100 401,118 430,145 390,168 360,168 Z`,
-    kingston:`M 390,168 430,145 462,168 448,180 412,175 Z`,
-    stAndrew:`M 365,100 401,118 430,115 428,82 401,52 365,47 Z`,
-    stThomas:`M 430,115 462,68 491,73 511,88 524,113 462,168 430,145 Z`,
-    portland:`M 401,52 428,82 430,82 462,68 431,62 Z`,
-    stMary:`M 365,47 401,52 428,68 365,80 326,60 Z`,
-    stAnn:`M 326,52 365,47 326,60 283,65 263,58 Z`,
-    trelawny:`M 263,58 283,65 326,60 270,88 228,56 Z`,
-    stJames:`M 196,61 228,56 270,88 230,100 196,103 170,73 Z`,
+  const PARISH_DATA = {
+    hanover: { name: 'Hanover', gasoline: 18000, water: 34000, backupWater: 20000, backupGas: 10000, crews: 15 },
+    westmoreland: { name: 'Westmoreland', gasoline: 20000, water: 36000, backupWater: 25000, backupGas: 12000, crews: 22 },
+    stJames: { name: 'St. James', gasoline: 35000, water: 68000, backupWater: 40000, backupGas: 20000, crews: 45 },
+    trelawny: { name: 'Trelawny', gasoline: 16000, water: 28000, backupWater: 20000, backupGas: 10000, crews: 18 },
+    stElizabeth: { name: 'St. Elizabeth', gasoline: 24000, water: 45000, backupWater: 30000, backupGas: 15000, crews: 25 },
+    stAnn: { name: 'St. Ann', gasoline: 28000, water: 51000, backupWater: 35000, backupGas: 15000, crews: 30 },
+    manchester: { name: 'Manchester', gasoline: 26000, water: 49000, backupWater: 30000, backupGas: 15000, crews: 32 },
+    clarendon: { name: 'Clarendon', gasoline: 30000, water: 58000, backupWater: 35000, backupGas: 18000, crews: 28 },
+    stMary: { name: 'St. Mary', gasoline: 17000, water: 29000, backupWater: 20000, backupGas: 10000, crews: 16 },
+    stCatherine: { name: 'St. Catherine', gasoline: 39500, water: 77000, backupWater: 50000, backupGas: 25000, crews: 55 },
+    portland: { name: 'Portland', gasoline: 15000, water: 27000, backupWater: 20000, backupGas: 10000, crews: 14 },
+    stAndrew: { name: 'St. Andrew', gasoline: 39500, water: 79000, backupWater: 60000, backupGas: 30000, crews: 58 },
+    kingston: { name: 'Kingston', gasoline: 39500, water: 79000, backupWater: 60000, backupGas: 30000, crews: 50 },
+    stThomas: { name: 'St. Thomas', gasoline: 14000, water: 22000, backupWater: 15000, backupGas: 8000, crews: 12 }
   };
 
-  const fills=Object.keys(parishRegions).map(id=>{
-    const n=mesh.nodes[id];
-    const hasAlert=mesh.alerts.some(a=>a.active&&a.parish===id);
-    const flood=conditions.floodRisk[id]||0;
-    let fill,stroke;
-    if(n.status==='offline'){fill='rgba(255,68,68,0.10)';stroke='rgba(255,68,68,0.38)'}
-    else if(n.status==='degraded'){fill='rgba(255,179,0,0.10)';stroke='rgba(255,179,0,0.45)'}
-    else if(hasAlert){fill='rgba(255,109,0,0.15)';stroke='rgba(255,109,0,0.65)'}
-    else if(n.isLeader){fill='rgba(255,179,0,0.12)';stroke='rgba(255,179,0,0.5)'}
-    else if(flood>70){fill='rgba(0,100,255,0.12)';stroke='rgba(0,176,255,0.35)'}
-    else{fill='rgba(0,176,255,0.05)';stroke='rgba(0,176,255,0.22)'}
-    return `<polygon points="${parishRegions[id]}" fill="${fill}" stroke="${stroke}" stroke-width="0.8" style="cursor:pointer" onclick="selectNode('${id}')"/>`;
-  }).join('');
+  const logs = [];
 
-  const connections=[
-    ['hanover','stJames'],['stJames','trelawny'],['trelawny','stAnn'],['stAnn','stMary'],
-    ['stMary','portland'],['portland','stThomas'],['stThomas','kingston'],
-    ['kingston','stAndrew'],['stAndrew','stCatherine'],['stCatherine','clarendon'],
-    ['clarendon','manchester'],['manchester','stElizabeth'],['stElizabeth','westmoreland'],
-    ['westmoreland','hanover'],['stAnn','manchester'],['clarendon','stThomas'],
-    ['stCatherine','stMary'],['manchester','stJames'],['kingston','clarendon'],
-  ];
+  function addLog(message) {
+    const time = new Date().toLocaleTimeString();
+    logs.unshift(`[${time}] ${message}`);
+    document.getElementById('log-box').innerHTML = logs.map(l => `<div class="log-entry">${l}</div>`).join('');
+  }
 
-  const lines=connections.map(([a,b])=>{
-    const pa=PARISHES[a],pb=PARISHES[b];
-    const na=mesh.nodes[a],nb=mesh.nodes[b];
-    const both=na.status==='online'&&nb.status==='online';
-    return `<line x1="${pa.mapX}" y1="${pa.mapY}" x2="${pb.mapX}" y2="${pb.mapY}"
-      stroke="${both?'rgba(0,176,255,0.2)':'rgba(255,68,68,0.15)'}"
-      stroke-width="${both?1.0:0.6}" ${both?'':'stroke-dasharray="4,3"'}/>`;
-  }).join('');
+  function renderDashboard() {
+    // Sync Calendar Outputs
+    const activeMonth = MONTHS[currentMonthIndex];
+    document.getElementById('sim-date-lbl').textContent = `${activeMonth} ${currentDay}`;
+    
+    // Format Consolidated Financial Layout Texts
+    document.getElementById('sim-treasury-lbl').textContent = `$${(sovereignTreasuryFunds / 1000000).toFixed(2)}M USD`;
+    document.getElementById('sim-insurance-lbl').textContent = `$${(parametricInsurancePool / 1000000).toFixed(1)}M USD`;
 
-  const nodes=Object.values(PARISHES).map(p=>{
-    const n=mesh.nodes[p.id];
-    const hasAlert=mesh.alerts.some(a=>a.active&&a.parish===p.id);
-    const sel=selectedNode===p.id;
-    const color=n.status==='online'?(n.isLeader?'#ffb300':'#00e676'):n.status==='degraded'?'#ffb300':'#ff4444';
-    const r=n.isLeader?8:sel?7:5;
-    const parts=p.name.split(' ');
-    const label=parts.length>1?(parts[0]==='St.'?parts[1].slice(0,4):parts[parts.length-1].slice(0,5)):p.name.slice(0,5);
+    const tbody = document.getElementById('ledger-tbody');
+    tbody.innerHTML = '';
+    let totalCriticalSystems = 0;
 
-    const ring=hasAlert?`<circle cx="${p.mapX}" cy="${p.mapY}" r="${r+7}" fill="none" stroke="${color}" stroke-width="1.2" opacity=".45" stroke-dasharray="3,2"><animateTransform attributeName="transform" type="rotate" from="0 ${p.mapX} ${p.mapY}" to="360 ${p.mapX} ${p.mapY}" dur="3.5s" repeatCount="indefinite"/></circle>`:'';
-    const selRing=sel?`<circle cx="${p.mapX}" cy="${p.mapY}" r="${r+5}" fill="none" stroke="${color}" stroke-width="1.5" opacity=".6"/>`:'';
+    Object.keys(PARISH_DATA).forEach(key => {
+      const p = PARISH_DATA[key];
+      const isCritical = (p.gasoline < 5000 || p.water < 10000 || p.crews < 4);
+      const isWarning = !isCritical && (p.gasoline < 12000 || p.water < 22000 || p.crews < 12);
+      
+      let riskStatus = '🟢 STABLE';
+      let pathClass = 'stable';
+      if (isCritical) { riskStatus = '🔴 CRISIS'; pathClass = 'critical'; totalCriticalSystems++; }
+      else if (isWarning) { riskStatus = '🟠 WARNING'; pathClass = 'warning'; }
+      
+      const path = document.getElementById(`map-${key}`);
+      if(path) path.className.baseVal = `parish-polygon ${pathClass}`;
 
-    return `<g style="cursor:pointer" onclick="selectNode('${p.id}')">
-      ${ring}${selRing}
-      <circle cx="${p.mapX}" cy="${p.mapY}" r="${r}" fill="${color}" stroke="#030a10" stroke-width="1.5"/>
-      <text x="${p.mapX}" y="${p.mapY-r-3}" text-anchor="middle" fill="rgba(180,220,255,0.7)" font-size="8.5" font-family="JetBrains Mono" font-weight="500">${label}</text>
-    </g>`;
-  }).join('');
-
-  const hurricaneMarker=conditions.hurricane.active?`<g>
-    <circle cx="48" cy="32" r="13" fill="none" stroke="#ff6d00" stroke-width="1.5" opacity=".6" stroke-dasharray="4,3">
-      <animateTransform attributeName="transform" type="rotate" from="0 48 32" to="360 48 32" dur="2.5s" repeatCount="indefinite"/>
-    </circle>
-    <text x="48" y="37" text-anchor="middle" fill="#ff6d00" font-size="13">🌀</text>
-    <text x="48" y="52" text-anchor="middle" fill="#ff6d00" font-size="8" font-family="JetBrains Mono">Cat ${conditions.hurricane.category}</text>
-  </g>`:'';
-
-  const compassX=610,compassY=16;
-  const compass=`<g transform="translate(${compassX},${compassY})" opacity=".45">
-    <text x="0" y="0" text-anchor="middle" fill="#00b0ff" font-size="8" font-family="JetBrains Mono">N</text>
-    <line x1="0" y1="2" x2="0" y2="12" stroke="#00b0ff" stroke-width="1"/>
-    <polygon points="-2,11 0,5 2,11" fill="#00b0ff" opacity=".6"/>
-  </g>`;
-
-  const legend=`<g transform="translate(10,219)">
-    <circle cx="5" cy="0" r="3.5" fill="#ffb300"/><text x="12" y="3" fill="#3a6880" font-size="8" font-family="JetBrains Mono">Primary</text>
-    <circle cx="64" cy="0" r="3.5" fill="#00e676"/><text x="71" y="3" fill="#3a6880" font-size="8" font-family="JetBrains Mono">Online</text>
-    <circle cx="118" cy="0" r="3.5" fill="#ffb300" opacity=".7"/><text x="125" y="3" fill="#3a6880" font-size="8" font-family="JetBrains Mono">Degraded</text>
-    <circle cx="178" cy="0" r="3.5" fill="#ff4444"/><text x="185" y="3" fill="#3a6880" font-size="8" font-family="JetBrains Mono">Offline</text>
-    <circle cx="225" cy="0" r="3.5" fill="rgba(0,100,255,0.5)" stroke="rgba(0,176,255,0.5)" stroke-width="1"/><text x="232" y="3" fill="#3a6880" font-size="8" font-family="JetBrains Mono">Flood Risk</text>
-  </g>`;
-
-  svg.innerHTML=`<defs>
-    <filter id="glow"><feGaussianBlur stdDeviation="2.5" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-  </defs>
-  <rect x="0" y="0" width="630" height="230" fill="rgba(3,8,16,0.75)" rx="0"/>
-  <text x="315" y="22" text-anchor="middle" fill="rgba(0,176,255,0.08)" font-size="9" font-family="JetBrains Mono" letter-spacing="5">CARIBBEAN SEA</text>
-  <text x="315" y="220" text-anchor="middle" fill="rgba(0,176,255,0.07)" font-size="8" font-family="JetBrains Mono" letter-spacing="4">CARIBBEAN SEA</text>
-  <path d="${island}" fill="rgba(10,25,35,0.95)" stroke="rgba(0,176,255,0.18)" stroke-width="1.2"/>
-  ${fills}${lines}${nodes}${hurricaneMarker}${compass}${legend}`;
-}
-
-// ─────────────────────────────────────────────
-// RESOURCE BARS
-// ─────────────────────────────────────────────
-
-function renderResourceBars(){
-  const id=selectedNode;
-  if(!id){
-    document.getElementById('res-section-title').textContent='Aggregate Resource Inventory — All Parishes';
-    const agg={};
-    Object.keys(RESOURCE_TYPES).forEach(rt=>{
-      agg[rt]={current:0,capacity:0};
-      Object.keys(mesh.resources).forEach(pid=>{agg[rt].current+=mesh.resources[pid][rt].current;agg[rt].capacity+=mesh.resources[pid][rt].capacity});
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td><strong>${p.name}</strong></td>
+        <td>${p.gasoline.toLocaleString()} L <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${(p.gasoline/BASE_MAXES.gasoline)*100}%; background:${p.gasoline < 5000 ? 'var(--red)' : 'var(--cyan)'}"></div></div></td>
+        <td>${p.water.toLocaleString()} L <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${(p.water/BASE_MAXES.water)*100}%; background:${p.water < 10000 ? 'var(--red)' : 'var(--green)'}"></div></div></td>
+        <td>
+          <span class="metric-pill">💧 ${p.backupWater.toLocaleString()} L</span>
+          <span class="metric-pill" style="background:rgba(255,234,0,0.05); color:var(--yellow)">⛽ Gas: ${p.backupGas.toLocaleString()} L</span>
+        </td>
+        <td>🚒 <strong>${p.crews}</strong></td>
+        <td style="font-weight:600; color:${isCritical ? 'var(--red)' : isWarning ? 'var(--orange)' : 'var(--green)'}">${riskStatus}</td>
+      `;
+      tbody.appendChild(row);
     });
-    document.getElementById('resource-bars').innerHTML=Object.entries(RESOURCE_TYPES).map(([rt,cfg])=>{
-      const r=agg[rt];
-      const pct=Math.round(r.current/r.capacity*100);
-      const cls=pct<15?'crit':pct<38?'low':'ok';
-      return `<div class="resrow">
-        <div class="reshdr"><span class="resname">${cfg.icon} ${cfg.label}</span><span class="resval">${Math.round(r.current).toLocaleString()} ${cfg.unit} (${pct}%)</span></div>
-        <div class="resbg"><div class="resbar ${cls}" style="width:${pct}%"></div></div>
-      </div>`;
-    }).join('');
-    return;
+
+    const incidentLabel = document.getElementById('system-incident-label');
+    if (totalCriticalSystems > 0) {
+      incidentLabel.textContent = `ALERT: ${totalCriticalSystems} RISK NODES DETECTED`;
+      incidentLabel.style.color = 'var(--red)';
+    } else {
+      incidentLabel.textContent = 'MUNICIPAL STATUS: SECURE';
+      incidentLabel.style.color = 'var(--green)';
+    }
   }
-  const res=mesh.resources[id],p=PARISHES[id];
-  document.getElementById('res-section-title').textContent=`${p.name} — Resource Inventory`;
-  document.getElementById('resource-bars').innerHTML=Object.entries(RESOURCE_TYPES).map(([rt,cfg])=>{
-    const r=res[rt];
-    const pct=Math.round(r.current/r.capacity*100);
-    const cls=r.current<cfg.critical?'crit':pct<38?'low':'ok';
-    const trendIcon=r.trend==='critical'?'📉':r.trend==='low'?'↓':'→';
-    return `<div class="resrow">
-      <div class="reshdr"><span class="resname">${cfg.icon} ${cfg.label} ${r.current<cfg.critical?'<span style="color:var(--red);font-size:9px">CRITICAL</span>':''}</span><span class="resval">${Math.round(r.current).toLocaleString()} ${cfg.unit} · ${pct}% ${trendIcon}</span></div>
-      <div class="resbg"><div class="resbar ${cls}" style="width:${pct}%"></div></div>
-    </div>`;
-  }).join('');
-}
 
-function renderSyncFeed(){
-  const recent=mesh.syncs.slice(0,8);
-  if(!recent.length){document.getElementById('sync-feed').innerHTML='<div class="sentry" style="color:var(--text4)">No transfers yet</div>';return}
-  document.getElementById('sync-feed').innerHTML=recent.map(s=>{
-    const age=Math.floor((Date.now()-s.ts)/1000);
-    const ageStr=age<60?`${age}s`:`${Math.floor(age/60)}m`;
-    const rt=RESOURCE_TYPES[s.resource];
-    return `<div class="sentry">
-      <span class="sf">${s.fromName}</span>
-      <span style="color:var(--text4)">→</span>
-      <span class="st">${s.toName}</span>
-      <span class="sa">${s.amount.toLocaleString()} ${rt?.unit||''}</span>
-      <span style="color:var(--text3)">${rt?.icon||''} ${s.resource}</span>
-      <span style="margin-left:auto;color:var(--text4);font-size:9px">${ageStr} ago</span>
-    </div>`;
-  }).join('');
-}
+  // CORE ADVANCED AUTOMATED REVENUE & CLIMATE MONITOR LOOP
+  function processSimulationTick() {
+    // 1. Advance Calendar Variables
+    currentDay += 4;
+    if (currentDay > 30) {
+      currentDay = 1;
+      currentMonthIndex = (currentMonthIndex + 1) % 12;
+    }
 
-function renderEventLog(){
-  document.getElementById('event-log').innerHTML=mesh.events.slice(0,60).map(e=>{
-    const t=new Date(e.ts).toISOString().slice(11,23);
-    return `<div class="evitem ${e.type}"><div class="evtime">${t}</div><div class="evmsg">${e.msg}</div></div>`;
-  }).join('');
-}
+    // 2. Compute Autonomous Tourism & Macro Tax Generation Inputs
+    let passiveTaxGain = 1400000 + 850000 + 2100000; // TEF + Import Duties + GCT
+    
+    // Tourism taxes dip slightly during severe winter fronts or dead center peak storm season
+    const isHurricaneSeason = (currentMonthIndex >= 5 && currentMonthIndex <= 10);
+    if (isHurricaneSeason && currentMonthIndex >= 7) {
+      passiveTaxGain = Math.floor(passiveTaxGain * 0.75); // 25% Reduction in tourism footprint during heavy storm window
+    }
+    sovereignTreasuryFunds += passiveTaxGain;
 
-function renderAlerts(){
-  const active=mesh.alerts.filter(a=>a.active);
-  document.getElementById('tp-alerts').textContent=active.length;
-  if(!active.length){
-    document.getElementById('alert-strip').innerHTML='<div id="no-alerts">✓ No active alerts</div>';
-    return;
+    // 3. Process Multi-Hazard Weather Engine Rules
+    const roll = Math.random();
+    const weatherLbl = document.getElementById('sim-weather-lbl');
+    let highImpactEmergencyTriggered = false;
+    let baselineCapitalOutlay = 0;
+
+    if (isHurricaneSeason) {
+      if (roll < 0.45) {
+        weatherLbl.textContent = "Nominal Sea States";
+        weatherLbl.style.color = "var(--green)";
+        applyNormalConsumption();
+      } 
+      else if (roll < 0.75) {
+        weatherLbl.textContent = "🌊 Severe Flash Flooding";
+        weatherLbl.style.color = "var(--yellow)";
+        addLog(`🌧️ HYDROMET INTERCEPT: Severe atmospheric troughs causing riverine flooding across lowlands.`);
+        Object.keys(PARISH_DATA).forEach(k => {
+          PARISH_DATA[k].water = Math.max(1000, Math.floor(PARISH_DATA[k].water * 0.82));
+          if (Math.random() > 0.6) PARISH_DATA[k].crews = Math.max(2, PARISH_DATA[k].crews - 2);
+        });
+      } 
+      else {
+        const category = Math.floor(Math.random() * 5) + 1;
+        weatherLbl.textContent = `🌀 Category ${category} Hurricane`;
+        weatherLbl.style.color = "var(--red)";
+        addLog(`🚨 SEVERE WEATHER CENTER: Category ${category} Hurricane system verified traversing regional coordinates.`);
+        
+        Object.keys(PARISH_DATA).forEach(k => {
+          const lossFactor = 0.88 - (category * 0.12);
+          PARISH_DATA[k].water = Math.max(500, Math.floor(PARISH_DATA[k].water * lossFactor));
+          PARISH_DATA[k].gasoline = Math.max(600, Math.floor(PARISH_DATA[k].gasoline * (lossFactor + 0.04)));
+          PARISH_DATA[k].crews = Math.max(1, PARISH_DATA[k].crews - Math.floor(Math.random() * 6));
+        });
+
+        if (category >= 4) highImpactEmergencyTriggered = true;
+      }
+    } 
+    else {
+      // Off-Season Macro Hazards Framework
+      if (roll < 0.55) {
+        weatherLbl.textContent = "Dry Winter Clear";
+        weatherLbl.style.color = "var(--green)";
+        applyNormalConsumption();
+      } 
+      else if (roll < 0.85) {
+        weatherLbl.textContent = "🔥 Vegetation Wildfire Breakouts";
+        weatherLbl.style.color = "var(--orange)";
+        addLog(`🍂 BRUSHFIRE REPORT: High temperatures trigger active wildfire vectors over interior agricultural ranges.`);
+        Object.keys(PARISH_DATA).forEach(k => {
+          PARISH_DATA[k].crews = Math.max(1, PARISH_DATA[k].crews - Math.floor(Math.random() * 4));
+          PARISH_DATA[k].water = Math.max(3000, PARISH_DATA[k].water - 2500); // Heavy draw on water grid storage to quench lines
+        });
+      } 
+      else {
+        weatherLbl.textContent = "🫨 Magnitude 6.8 Tectonic Shift";
+        weatherLbl.style.color = "var(--red)";
+        addLog(`🚨 GEOLOGICAL FAULT LOG: Sub-surface plate movement creates physical infrastructure failures.`);
+        Object.keys(PARISH_DATA).forEach(k => {
+          PARISH_DATA[k].water = Math.max(800, Math.floor(PARISH_DATA[k].water * 0.65));
+          PARISH_DATA[k].gasoline = Math.max(800, Math.floor(PARISH_DATA[k].gasoline * 0.58));
+          PARISH_DATA[k].crews = Math.max(2, PARISH_DATA[k].crews - 5);
+        });
+        highImpactEmergencyTriggered = true;
+      }
+    }
+
+    // 4. AUTONOMOUS TREASURY PROCUREMENT ENGINE (Purchasing Supplies to Improve Country Infrastructure)
+    Object.keys(PARISH_DATA).forEach(k => {
+      const p = PARISH_DATA[k];
+      
+      // Auto-Detect Critical Failure Lines & Purchase Assets to Remediate
+      if (p.water < 14000 && sovereignTreasuryFunds > 12000000) {
+        const purchaseCost = 4500000; // $4.5M Investment allocation
+        sovereignTreasuryFunds -= purchaseCost;
+        baselineCapitalOutlay += purchaseCost;
+        
+        p.water += 30000; // Procures 30k L of water infrastructure reserves instantly
+        addLog(`🛒 CAPITAL OUTLAY: Treasury allocated $4.5M USD for industrial water purifying assets at ${p.name}.`);
+      }
+
+      if (p.gasoline < 7000 && sovereignTreasuryFunds > 10000000) {
+        const fuelCost = 3000000; // $3.0M Investment allocation
+        sovereignTreasuryFunds -= fuelCost;
+        baselineCapitalOutlay += fuelCost;
+        
+        p.gasoline += 18000; // Refills fuel nodes via cargo purchase orders
+        addLog(`🛒 CAPITAL OUTLAY: Bulk fuel payload purchased ($3.0M USD) to reinforce ${p.name} grid terminals.`);
+      }
+
+      if (p.crews < 6 && sovereignTreasuryFunds > 8000000) {
+        const logisticsCrewCost = 2500000; // $2.5M for emergency support vehicle fleet acquisition
+        sovereignTreasuryFunds -= logisticsCrewCost;
+        baselineCapitalOutlay += logisticsCrewCost;
+        
+        p.crews += 12;
+        addLog(`🛒 CAPITAL OUTLAY: Dispatched +12 Heavy Engineering Equipment Fleets to ${p.name} ($2.5M USD total).`);
+      }
+    });
+
+    // Update outlays text panel indicators
+    document.getElementById('fiscal-outlay').textContent = baselineCapitalOutlay > 0 
+      ? `-$${(baselineCapitalOutlay / 1000000).toFixed(1)}M USD` 
+      : `$0 USD`;
+
+    // 5. PARAMETRIC CCRIF RISK COVER TRIGGER ENGINE
+    if (highImpactEmergencyTriggered && parametricInsurancePool > 30000000) {
+      const payoutValue = 40000000; // Liquidation parameter payout
+      parametricInsurancePool -= payoutValue;
+      sovereignTreasuryFunds += payoutValue;
+      addLog(`🏦 PARAMETRIC TRACER: Severe cataclysmic criteria met. CCRIF liquidates $40.0M USD directly to state portfolio treasury assets.`);
+    }
+
+    // 6. PROCESS UNDERGROUND STRATEGIC DEEP BUFFERS REFILL SEQUENCE
+    Object.keys(PARISH_DATA).forEach(k => {
+      const p = PARISH_DATA[k];
+      if (p.water < 10000 && p.backupWater > 0) {
+        const release = Math.min(6000, p.backupWater);
+        p.backupWater -= release;
+        p.water += release;
+        addLog(`🛡️ STRATEGIC RESERVE: Auto-bleeding localized backup water caches into ${p.name}.`);
+      }
+    });
+
+    runCrossCountrySupplyOptimizationRoutine();
+    renderDashboard();
   }
-  const sevColor={'critical':'var(--red)','high':'var(--orange)','medium':'var(--amber)'};
-  document.getElementById('alert-strip').innerHTML=active.map(a=>{
-    const isHurr=a.type==='HURRICANE';
-    return `<div class="aitem${isHurr?' hurricane-alert':''}">
-      <div class="ahead">
-        <div>
-          <div class="aname">${CRISIS_TYPES[a.type]?.icon||'⚠'} ${a.name}</div>
-          <div class="aparish">${a.parishName} · ${a.severity.toUpperCase()}</div>
-        </div>
-        <button class="aresolve" onclick="resolveAlert(${a.id})">Resolve</button>
-      </div>
-      <div style="margin-top:5px;font-size:9px;font-family:var(--mono);color:var(--text3)">${new Date(a.ts).toISOString().slice(11,19)} UTC · Auto-rebalance active</div>
-    </div>`;
-  }).join('');
-}
 
-function renderNodeDetail(id){
-  const n=mesh.nodes[id], p=PARISHES[id], res=mesh.resources[id];
-  const alertsForNode=mesh.alerts.filter(a=>a.active&&a.parish===id);
-  const upH=Math.floor(n.uptime/3600), upM=Math.floor((n.uptime%3600)/60);
-  const w=conditions.weather[id];
-  const roleColor=n.isLeader?'pr':n.status==='offline'?'of':'rp';
-
-  document.getElementById('node-detail-panel').innerHTML=`
-    <div class="ndhdr">
-      <div class="nled ${n.status}" style="width:9px;height:9px;flex-shrink:0"></div>
-      <div class="ndname">${p.name}</div>
-      <span class="ndbadge ${roleColor}">${n.isLeader?'PRIMARY':n.status.toUpperCase()}</span>
-    </div>
-
-    ${alertsForNode.length?`<div style="background:rgba(255,68,68,0.06);border:1px solid rgba(255,68,68,0.2);border-radius:5px;padding:7px 9px;margin-bottom:9px">
-      <div style="font-size:10px;font-weight:700;color:var(--red);margin-bottom:3px">Active Crisis Events</div>
-      ${alertsForNode.map(a=>`<div style="font-size:10px;font-family:var(--mono);color:var(--text3)">${CRISIS_TYPES[a.type]?.icon} ${a.name}</div>`).join('')}
-    </div>`:''}
-
-    <div class="ndstats">
-      <div class="ndstat"><div class="ndstat-l">Role</div><div class="ndstat-v">${n.role}</div></div>
-      <div class="ndstat"><div class="ndstat-l">Raft Term</div><div class="ndstat-v">${n.term}</div></div>
-      <div class="ndstat"><div class="ndstat-l">Latency</div><div class="ndstat-v">${Math.round(n.networkLatency)}ms</div></div>
-      <div class="ndstat"><div class="ndstat-l">Uptime</div><div class="ndstat-v">${upH}h ${upM}m</div></div>
-      <div class="ndstat"><div class="ndstat-l">Heartbeats</div><div class="ndstat-v">${n.heartbeatCount}</div></div>
-      <div class="ndstat"><div class="ndstat-l">Pending Writes</div><div class="ndstat-v" style="color:${n.pendingWrites>5?'var(--amber)':'inherit'}">${n.pendingWrites}</div></div>
-      <div class="ndstat"><div class="ndstat-l">Population</div><div class="ndstat-v">${(p.pop/1000).toFixed(0)}K</div></div>
-      <div class="ndstat"><div class="ndstat-l">Region</div><div class="ndstat-v">${p.region}</div></div>
-    </div>
-
-    <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:7px">Live Weather</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:9px">
-      <div class="ndstat"><div class="ndstat-l">Condition</div><div style="font-size:10px;font-family:var(--mono);color:var(--text)">${w.condition}</div></div>
-      <div class="ndstat"><div class="ndstat-l">Temp</div><div class="ndstat-v">${w.temp.toFixed(1)}°C</div></div>
-      <div class="ndstat"><div class="ndstat-l">Wind</div><div class="ndstat-v" style="color:${w.windSpeed>80?'var(--red)':w.windSpeed>50?'var(--amber)':'inherit'}">${Math.round(w.windSpeed)}mph</div></div>
-      <div class="ndstat"><div class="ndstat-l">Rainfall</div><div class="ndstat-v" style="color:${w.rainfall>80?'var(--red)':'inherit'}">${Math.round(w.rainfall)}mm</div></div>
-      <div class="ndstat"><div class="ndstat-l">Humidity</div><div class="ndstat-v">${Math.round(w.humidity)}%</div></div>
-      <div class="ndstat"><div class="ndstat-l">Flood Risk</div><div class="ndstat-v" style="color:${(conditions.floodRisk[id]||0)>70?'var(--red)':(conditions.floodRisk[id]||0)>40?'var(--amber)':'inherit'}">${Math.round(conditions.floodRisk[id]||0)}%</div></div>
-    </div>
-
-    <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:7px">Node Controls</div>
-    <div style="display:flex;gap:5px">
-      ${n.status==='online'
-        ?`<button class="abtn d" onclick="setNodeStatus('${id}','offline')" style="padding:6px 8px;font-size:11px">Kill Node</button>
-           <button class="abtn" onclick="setNodeStatus('${id}','degraded')" style="padding:6px 8px;font-size:11px">Degrade</button>
-           <button class="abtn d" onclick="quickCrisis('${id}')" style="padding:6px 8px;font-size:11px">Crisis!</button>`
-        :`<button class="abtn p" onclick="setNodeStatus('${id}','online')" style="padding:6px 8px;font-size:11px">Restore Node</button>`}
-    </div>
-  `;
-}
-
-function renderConditions(){
-  const h=conditions.hurricane;
-  const catColors=['#00e676','#ffd600','#ff9100','#ff6d00','#f44336','#b71c1c'];
-  const catColor=catColors[Math.min(5,h.category)];
-  const catPct=h.category/5*100;
-
-  const seismicHTML=conditions.seismic.slice(0,6).map(e=>{
-    const magCls=e.magnitude>=5?'mag-major':e.magnitude>=3.5?'mag-mod':'mag-minor';
-    const age=Date.now()-e.ts;
-    const ageStr=age<3600000?`${Math.floor(age/60000)}m ago`:age<86400000?`${Math.floor(age/3600000)}h ago`:`${Math.floor(age/86400000)}d ago`;
-    return `<div class="seisev">
-      <div class="magbadge ${magCls}">M${e.magnitude}</div>
-      <div><div class="seisloc">${e.location}</div><div class="seistime">${ageStr}</div></div>
-      <div class="seisdep">${e.depth}km deep</div>
-    </div>`;
-  }).join('');
-
-  const parishWeatherHTML=Object.entries(conditions.weather).slice(0,8).map(([id,w])=>{
-    const maxW=220;
-    return `<div class="prow">
-      <div class="pname">${PARISHES[id].name}</div>
-      <div class="pbars">
-        <div class="minibg"><div class="minibar wind" style="width:${Math.min(100,w.windSpeed/maxW*100)}%"></div></div>
-        <div class="minibg"><div class="minibar rain" style="width:${Math.min(100,w.rainfall/300*100)}%"></div></div>
-      </div>
-      <div class="pstat">${Math.round(w.windSpeed)}mph<br>${Math.round(w.rainfall)}mm</div>
-    </div>`;
-  }).join('');
-
-  const floodHTML=Object.entries(conditions.floodRisk).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([id,risk])=>{
-    const cls=risk>75?'risk-ex':risk>50?'risk-hi':risk>30?'risk-md':'risk-lo';
-    const icon=risk>75?'🔴':risk>50?'🟠':risk>30?'🟡':'🟢';
-    return `<div class="floodrow">
-      <span>${icon}</span>
-      <div class="floodname">${PARISHES[id].name}</div>
-      <div class="floodbar-bg"><div class="floodbar ${cls}" style="width:${Math.min(100,risk)}%"></div></div>
-      <div class="floodpct">${Math.round(risk)}%</div>
-    </div>`;
-  }).join('');
-
-  document.getElementById('conditions-panel').innerHTML=`
-
-    <div class="cblock">
-      <div class="cbhdr">
-        <div style="font-size:13px">🌀</div>
-        <div class="cbtitle">Atlantic Hurricane Activity</div>
-        <div class="cbbadge ${h.active?(h.category>=3?'b-crit':'b-warn'):'b-ok'}">${h.active?`CAT ${h.category} ACTIVE`:'INACTIVE'}</div>
-      </div>
-      <div class="cbody">
-        <div class="hcard">
-          <div class="hrow"><span class="hlabel">Storm Name</span><span class="hval" style="color:${h.active?catColor:'var(--text3)'}">${h.name}</span></div>
-          ${h.active?`
-          <div class="hrow"><span class="hlabel">Category / Intensity</span><span class="hval" style="color:${catColor}">Category ${h.category} — ${h.intensity}</span></div>
-          <div class="hrow"><span class="hlabel">Max Wind Speed</span><span class="hval">${Math.round(h.windSpeed)} mph</span></div>
-          <div class="hrow"><span class="hlabel">Central Pressure</span><span class="hval">${Math.round(h.pressure)} mb</span></div>
-          <div class="hrow"><span class="hlabel">Heading / Position</span><span class="hval">${h.heading} · ${h.lat.toFixed(1)}°N ${Math.abs(h.lng).toFixed(1)}°W</span></div>
-          <div style="margin-top:4px">
-            <div style="font-size:9px;color:var(--text3);margin-bottom:3px;font-family:var(--mono)">CATEGORY PROGRESSION</div>
-            <div class="catbar-bg"><div class="catbar-fill" style="width:${catPct}%;background:${catColor}"></div></div>
-          </div>
-          `:`<div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:4px">Atlantic Basin — ${conditions.tropicalWaves} tropical wave(s) being monitored</div>`}
-        </div>
-      </div>
-    </div>
-
-    <div class="cblock">
-      <div class="cbhdr">
-        <div style="font-size:13px">🌦</div>
-        <div class="cbtitle">Parish Weather Conditions</div>
-        <div class="cbbadge b-watch">LIVE</div>
-      </div>
-      <div class="cbody">
-        <div style="display:flex;gap:8px;font-size:9px;font-family:var(--mono);color:var(--text3);margin-bottom:6px">
-          <span style="display:flex;align-items:center;gap:3px"><span style="width:12px;height:3px;background:var(--teal);border-radius:2px;display:inline-block"></span>Wind</span>
-          <span style="display:flex;align-items:center;gap:3px"><span style="width:12px;height:3px;background:var(--cyan2);border-radius:2px;display:inline-block"></span>Rainfall</span>
-        </div>
-        <div class="pgrid">${parishWeatherHTML}</div>
-      </div>
-    </div>
-
-    <div class="cblock">
-      <div class="cbhdr">
-        <div style="font-size:13px">🌊</div>
-        <div class="cbtitle">Caribbean Sea State</div>
-        <div class="cbbadge ${conditions.seaState.waveHeight>4?'b-crit':conditions.seaState.waveHeight>2?'b-warn':'b-ok'}">
-          ${conditions.seaState.waveHeight>4?'ROUGH':conditions.seaState.waveHeight>2?'MODERATE':'CALM'}</div>
-      </div>
-      <div class="cbody">
-        <div class="seagrid">
-          <div class="seacell"><div class="scl">Wave Height</div><div class="scv">${conditions.seaState.waveHeight.toFixed(1)}<span class="scu"> m</span></div></div>
-          <div class="seacell"><div class="scl">Swell Period</div><div class="scv">${conditions.seaState.swellPeriod}<span class="scu"> s</span></div></div>
-          <div class="seacell"><div class="scl">Sea Surface Temp</div><div class="scv">${conditions.seaState.seaSurfaceTemp.toFixed(1)}<span class="scu"> °C</span></div></div>
-          <div class="seacell"><div class="scl">Sea Level Anomaly</div><div class="scv">${conditions.seaState.seaLevel>0?'+':''}${conditions.seaState.seaLevel.toFixed(2)}<span class="scu"> m</span></div></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="cblock">
-      <div class="cbhdr">
-        <div style="font-size:13px">🌋</div>
-        <div class="cbtitle">Seismic Activity — Caribbean Faults</div>
-        <div class="cbbadge ${conditions.seismic.some(e=>e.magnitude>=5)?'b-crit':conditions.seismic.some(e=>e.magnitude>=3.5)?'b-warn':'b-ok'}">
-          ${conditions.seismic.filter(e=>Date.now()-e.ts<86400000).length} EVENT(S) / 24H</div>
-      </div>
-      <div class="cbody"><div class="seislist">${seismicHTML}</div></div>
-    </div>
-
-    <div class="cblock">
-      <div class="cbhdr">
-        <div style="font-size:13px">🌊</div>
-        <div class="cbtitle">Parish Flood Risk Assessment</div>
-        <div class="cbbadge ${Math.max(...Object.values(conditions.floodRisk))>70?'b-crit':'b-watch'}">LIVE</div>
-      </div>
-      <div class="cbody"><div class="floodlist">${floodHTML}</div></div>
-    </div>
-  `;
-}
-
-// ─────────────────────────────────────────────
-// ACTIONS
-// ─────────────────────────────────────────────
-
-function selectNode(id){
-  selectedNode=id;
-  switchTab('detail');
-  renderNodeList();
-  renderResourceBars();
-  renderNodeDetail(id);
-}
-
-function logEvent(type, msg){
-  mesh.events.unshift({ts:Date.now(),type,msg});
-  if(mesh.events.length>200) mesh.events.pop();
-}
-
-function setNodeStatus(id,status){
-  const prev=mesh.nodes[id].status;
-  mesh.nodes[id].status=status;
-  if(status==='offline'&&prev==='online'){
-    if(mesh.nodes[id].isLeader) electLeader(id);
-    logEvent('NODE_DOWN',`🔴 ${PARISHES[id].name} went offline — failover initiated`);
-  } else if(status==='online'&&prev!=='online'){
-    mesh.nodes[id].pendingWrites=Math.floor(Math.random()*22)+5;
-    logEvent('NODE_UP',`🟢 ${PARISHES[id].name} rejoined mesh — syncing ${mesh.nodes[id].pendingWrites} pending writes`);
-  } else if(status==='degraded'){
-    logEvent('NODE_DEGRADED',`🟡 ${PARISHES[id].name} degraded — partial connectivity detected`);
+  function applyNormalConsumption() {
+    Object.keys(PARISH_DATA).forEach(k => {
+      PARISH_DATA[k].gasoline = Math.max(3000, PARISH_DATA[k].gasoline - Math.floor(Math.random() * 850));
+      PARISH_DATA[k].water = Math.max(5000, PARISH_DATA[k].water - Math.floor(Math.random() * 1400));
+    });
   }
-  render();
-}
 
-function globalRebalance(){
-  let count=0;
-  Object.keys(mesh.resources).forEach(toId=>{
-    if(mesh.nodes[toId].status!=='online') return;
-    Object.keys(RESOURCE_TYPES).forEach(rt=>{
-      const cfg=RESOURCE_TYPES[rt],toRes=mesh.resources[toId][rt];
-      if(toRes.current<cfg.nominal*0.5){
-        const donors=Object.keys(mesh.resources).filter(fId=>fId!==toId&&mesh.nodes[fId].status==='online'&&mesh.resources[fId][rt].current>cfg.nominal*1.2)
-          .sort((a,b)=>mesh.resources[b][rt].current-mesh.resources[a][rt].current);
-        if(donors.length){
-          const amount=Math.floor((mesh.resources[donors[0]][rt].current-cfg.nominal)*0.3);
-          if(amount>100){const actual=transferResource(donors[0],toId,rt,amount);if(actual)count++}
+  // LOGISTICS REBALANCING PIPELINE ROUTINE
+  function runCrossCountrySupplyOptimizationRoutine() {
+    const balanceTargets = { gasoline: 18000, water: 32000 };
+    Object.keys(balanceTargets).forEach(resource => {
+      let donor = null;
+      let recipient = null;
+
+      Object.keys(PARISH_DATA).forEach(k => {
+        if(!donor || PARISH_DATA[k][resource] > PARISH_DATA[donor][resource]) donor = k;
+        if(!recipient || PARISH_DATA[k][resource] < PARISH_DATA[recipient][resource]) recipient = k;
+      });
+
+      if (donor && recipient && donor !== recipient) {
+        const surplus = PARISH_DATA[donor][resource] - balanceTargets[resource];
+        const deficit = balanceTargets[resource] - PARISH_DATA[recipient][resource];
+
+        if (surplus > 2000 && deficit > 0) {
+          const vol = Math.min(surplus, deficit, 4000);
+          PARISH_DATA[donor][resource] -= vol;
+          PARISH_DATA[recipient][resource] += vol;
         }
       }
     });
-  });
-  logEvent('AUTO_REBALANCE',`⚖ Global rebalance complete: ${count} transfers executed across parish mesh`);
-  render();
-}
-
-function triggerRandom(){
-  const ids=Object.keys(mesh.nodes).filter(id=>mesh.nodes[id].status==='online');
-  if(!ids.length) return;
-  const parish=ids[Math.floor(Math.random()*ids.length)];
-  const types=Object.keys(CRISIS_TYPES);
-  triggerCrisis(parish,types[Math.floor(Math.random()*types.length)]);
-  switchTab('alerts');
-  render();
-}
-
-function triggerTargeted(){
-  const parish=document.getElementById('crisis-parish-select').value;
-  const type=document.getElementById('crisis-type-select').value;
-  if(!parish){alert('Please select a parish');return}
-  triggerCrisis(parish,type);
-  switchTab('alerts');
-  render();
-}
-
-function quickCrisis(nodeId){
-  const types=Object.keys(CRISIS_TYPES);
-  triggerCrisis(nodeId,types[Math.floor(Math.random()*types.length)]);
-  switchTab('alerts');
-  render();
-}
-
-function triggerElection(){
-  const leader=Object.values(mesh.nodes).find(n=>n.isLeader);
-  if(leader) electLeader(null);
-  render();
-}
-
-function resolveAlert(id){
-  const a=mesh.alerts.find(a=>String(a.id)===String(id));
-  if(a){
-    a.active=false;
-    if(a.type==='HURRICANE'){
-      conditions.hurricane.active=false;conditions.hurricane.category=0;conditions.hurricane.windSpeed=0;conditions.hurricane.name='No Active Storms';
-      document.getElementById('hurr-tracker').classList.remove('show');
-      document.getElementById('storm-bar').classList.remove('show');
-    }
-    logEvent('CRISIS',`✅ Crisis resolved: ${a.name} at ${a.parishName}`);
-    render();
   }
-}
 
-function openTransferModal(){document.getElementById('transfer-modal').classList.add('open')}
-function closeTransferModal(){document.getElementById('transfer-modal').classList.remove('open')}
-
-function executeTransfer(){
-  const from=document.getElementById('tm-from').value;
-  const to=document.getElementById('tm-to').value;
-  const rt=document.getElementById('tm-resource').value;
-  const amount=parseInt(document.getElementById('tm-amount').value);
-  if(from===to){alert('Cannot transfer to the same parish');return}
-  if(mesh.nodes[from].status!=='online'){alert(`${PARISHES[from].name} is offline`);return}
-  const actual=transferResource(from,to,rt,amount);
-  if(actual){
-    logEvent('AUTO_REBALANCE',`📦 Manual transfer: ${actual.toLocaleString()} ${RESOURCE_TYPES[rt].unit} of ${rt} from ${PARISHES[from].name} → ${PARISHES[to].name}`);
-    closeTransferModal();
-    render();
-  }
-}
-
-function switchTab(tab){
-  activeTab=tab;
-  document.querySelectorAll('.tab').forEach((t,i)=>{
-    t.classList.toggle('active',['events','alerts','detail','conditions'][i]===tab);
-  });
-  document.querySelectorAll('.tcon').forEach(c=>c.classList.remove('active'));
-  document.getElementById(`tab-${tab}`).classList.add('active');
-  if(tab==='conditions') renderConditions();
-}
-
-function updateClock(){
-  document.getElementById('clock').textContent=new Date().toISOString().slice(11,19)+' UTC';
-}
-
-// ─────────────────────────────────────────────
-// BOOT
-// ─────────────────────────────────────────────
-
-initMesh();
-simulationTick();
-setInterval(simulationTick,4000);
-setInterval(updateClock,1000);
-updateClock();
+  window.onload = () => {
+    addLog("🖥️ ENGINE INITIALIZATION: Macro Fiscal Strategy Suite active.");
+    renderDashboard();
+    // System timeline updates autonomously every 4 seconds
+    setInterval(processSimulationTick, 4000);
+  };
 </script>
 </body>
 </html>

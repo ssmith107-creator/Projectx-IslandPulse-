@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IslandPulse — Jamaica Emergency Mesh</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0e0d;
+  --bg2: #0f1512;
+  --bg3: #141a17;
+  --bg4: #1a211d;
+  --surface: #1e2822;
+  --surface2: #243029;
+  --border: rgba(74, 222, 128, 0.12);
+  --border2: rgba(74, 222, 128, 0.22);
+  --green: #4ade80;
+  --green-dim: #22c55e;
+  --green-glow: rgba(74, 222, 128, 0.15);
+  --amber: #fbbf24;
+  --amber-dim: #f59e0b;
+  --red: #f87171;
+  --red-dim: #ef4444;
+  --blue: #60a5fa;
+  --cyan: #22d3ee;
+  --text: #e2f0e8;
+  --text2: #94a3a0;
+  --text3: #5a6b66;
+  --font: 'Space Grotesk', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+  --r: 8px;
+  --r2: 12px;
+}
+
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; overflow: hidden; }
+
+.shell { display: grid; grid-template-rows: 52px 1fr; grid-template-columns: 280px 1fr 320px; height: 100vh; }
+.topbar { grid-column: 1 / -1; display: flex; align-items: center; gap: 16px; padding: 0 20px; background: var(--bg2); border-bottom: 1px solid var(--border); z-index: 10; }
+.sidebar { background: var(--bg2); border-right: 1px solid var(--border); overflow-y: auto; display: flex; flex-direction: column; }
+.main { overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.panel { background: var(--bg2); border-right: 1px solid var(--border); overflow-y: auto; display: flex; flex-direction: column; }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+.logo { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 700; letter-spacing: -0.5px; color: var(--green); }
+.logo-pulse { width: 10px; height: 10px; border-radius: 50%; background: var(--green); box-shadow: 0 0 12px var(--green); animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{ transform: scale(1); opacity:1; } 50%{ transform: scale(1.4); opacity:0.7; } }
+.logo-sub { font-size: 11px; color: var(--text3); font-weight: 400; font-family: var(--mono); }
+.spacer { flex: 1; }
+.mesh-status { display: flex; align-items: center; gap: 20px; }
+.stat-pill { display: flex; align-items: center; gap: 6px; padding: 4px 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; font-size: 12px; font-family: var(--mono); }
+.stat-pill .val { color: var(--green); font-weight: 600; }
+.dot { width: 6px; height: 6px; border-radius: 50%; }
+.dot.green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.dot.amber { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+.dot.red { background: var(--red); box-shadow: 0 0 6px var(--red); }
+.clock { font-family: var(--mono); font-size: 12px; color: var(--text3); }
+
+.sec-label { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text3); padding: 12px 16px 6px; }
+.divider { height: 1px; background: var(--border); margin: 4px 0; }
+
+.node-item { display: flex; align-items: center; gap: 10px; padding: 8px 14px; cursor: pointer; transition: background 0.15s; border-left: 2px solid transparent; }
+.node-item:hover { background: var(--surface); }
+.node-item.active { background: var(--green-glow); border-left-color: var(--green); }
+.node-item.offline { opacity: 0.5; }
+.node-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.node-dot.online { background: var(--green); box-shadow: 0 0 8px var(--green); }
+.node-dot.offline { background: var(--red); }
+.node-dot.degraded { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+.node-name { font-size: 13px; font-weight: 500; flex: 1; }
+.node-role { font-size: 10px; font-family: var(--mono); color: var(--text3); }
+.node-latency { font-size: 10px; font-family: var(--mono); color: var(--text3); }
+.node-item.leader .node-name::after { content: ' ★'; color: var(--amber); font-size: 10px; }
+.node-controls { display: flex; gap: 4px; opacity: 0; transition: opacity 0.15s; }
+.node-item:hover .node-controls { opacity: 1; }
+.node-btn { font-size: 9px; padding: 2px 5px; border: 1px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; border-radius: 4px; font-family: var(--mono); }
+.node-btn:hover { background: var(--surface2); }
+.node-btn.danger { border-color: rgba(248,113,113,0.3); color: var(--red); }
+.node-btn.danger:hover { background: rgba(248,113,113,0.1); }
+
+.metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.metric-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r2); padding: 12px 14px; }
+.metric-label { font-size: 11px; color: var(--text3); letter-spacing: 0.5px; margin-bottom: 4px; }
+.metric-val { font-size: 24px; font-weight: 700; font-family: var(--mono); line-height: 1; }
+.metric-val.green { color: var(--green); }
+.metric-val.amber { color: var(--amber); }
+.metric-val.red { color: var(--red); }
+.metric-val.blue { color: var(--blue); }
+.metric-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+/* MAP */
+.map-container { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r2); padding: 12px; position: relative; }
+.map-title { font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+#island-map { width: 100%; height: 260px; }
+
+.resource-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r2); padding: 14px; }
+.res-title { font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 12px; }
+.res-row { margin-bottom: 10px; }
+.res-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.res-name { font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+.res-icon { font-size: 14px; }
+.res-val { font-size: 11px; font-family: var(--mono); color: var(--text2); }
+.res-bar-bg { height: 5px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+.res-bar { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
+.res-bar.ok { background: var(--green-dim); }
+.res-bar.low { background: var(--amber); }
+.res-bar.critical { background: var(--red); animation: blink-bar 1.5s ease-in-out infinite; }
+@keyframes blink-bar { 0%,100%{ opacity:1; } 50%{ opacity:0.4; } }
+
+.sync-feed { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r2); padding: 12px; display: flex; flex-direction: column; gap: 0; flex: 1; }
+.sync-title { font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 10px; }
+.sync-entry { font-size: 11px; font-family: var(--mono); color: var(--text3); padding: 4px 0; border-bottom: 1px solid var(--border); line-height: 1.5; }
+.sync-entry:last-child { border-bottom: none; }
+.sync-from { color: var(--blue); }
+.sync-to { color: var(--green); }
+.sync-amount { color: var(--amber); font-weight: 600; }
+.sync-time { color: var(--text3); float: right; }
+
+.event-log { flex: 1; overflow-y: auto; }
+.event-item { padding: 8px 14px; border-bottom: 1px solid var(--border); font-size: 11px; animation: slideIn 0.3s ease; }
+@keyframes slideIn { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: translateX(0); } }
+.event-time { font-family: var(--mono); color: var(--text3); margin-bottom: 2px; }
+.event-msg { color: var(--text2); line-height: 1.4; }
+.event-type-CRISIS .event-msg { color: #fca5a5; }
+.event-type-NODE_DOWN .event-msg { color: var(--red); }
+.event-type-NODE_UP .event-msg { color: var(--green); }
+.event-type-AUTO_REBALANCE .event-msg { color: var(--blue); }
+.event-type-LEADER_ELECTION .event-msg { color: var(--amber); }
+.event-type-SPLIT_BRAIN .event-msg { color: #fb923c; }
+
+.vclock-grid { display: flex; flex-wrap: wrap; gap: 4px; padding: 8px 14px; }
+.vc-cell { background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 3px 6px; font-family: var(--mono); font-size: 10px; }
+.vc-cell .vc-node { color: var(--text3); }
+.vc-cell .vc-val { color: var(--green); font-weight: 600; }
+
+.action-panel { padding: 12px 14px; }
+.action-title { font-size: 11px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
+.action-row { display: flex; gap: 6px; margin-bottom: 8px; }
+.act-btn { flex: 1; padding: 7px 10px; border: 1px solid var(--border2); background: var(--surface); color: var(--text); font-size: 11px; font-family: var(--font); font-weight: 500; border-radius: var(--r); cursor: pointer; transition: all 0.15s; }
+.act-btn:hover { background: var(--surface2); border-color: var(--green); color: var(--green); }
+.act-btn.danger { border-color: rgba(248,113,113,0.3); }
+.act-btn.danger:hover { background: rgba(248,113,113,0.08); border-color: var(--red); color: var(--red); }
+.act-btn.primary { border-color: var(--green-dim); background: rgba(34,197,94,0.1); color: var(--green); }
+.act-btn.primary:hover { background: rgba(34,197,94,0.18); }
+select.act-select { flex: 1; padding: 6px 8px; background: var(--surface); border: 1px solid var(--border2); color: var(--text); font-size: 11px; font-family: var(--font); border-radius: var(--r); }
+
+.alert-strip { padding: 8px 14px; display: flex; flex-direction: column; gap: 6px; }
+.alert-item { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25); border-radius: var(--r); padding: 8px 10px; font-size: 11px; animation: alertIn 0.4s ease; }
+@keyframes alertIn { from { opacity: 0; transform: translateY(-4px); } }
+.alert-name { color: var(--red); font-weight: 600; margin-bottom: 2px; }
+.alert-parish { color: var(--text2); font-size: 10px; }
+.alert-resolve { float: right; font-size: 10px; padding: 2px 8px; border: 1px solid rgba(248,113,113,0.4); background: transparent; color: var(--red); border-radius: 4px; cursor: pointer; font-family: var(--mono); }
+.alert-resolve:hover { background: rgba(248,113,113,0.15); }
+
+.node-detail { padding: 12px 14px; }
+.nd-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.nd-name { font-size: 15px; font-weight: 700; }
+.nd-badge { font-size: 10px; font-family: var(--mono); padding: 2px 6px; border-radius: 20px; }
+.nd-badge.primary { background: rgba(251,191,36,0.15); color: var(--amber); border: 1px solid rgba(251,191,36,0.3); }
+.nd-badge.replica { background: rgba(96,165,250,0.1); color: var(--blue); border: 1px solid rgba(96,165,250,0.2); }
+.nd-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px; }
+.nd-stat { background: var(--bg3); border-radius: var(--r); padding: 8px 10px; }
+.nd-stat-label { font-size: 10px; color: var(--text3); margin-bottom: 2px; }
+.nd-stat-val { font-size: 13px; font-family: var(--mono); font-weight: 600; }
+
+.sb-banner { background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.3); border-radius: var(--r2); padding: 12px 14px; margin: 8px 14px; display: none; }
+.sb-banner.active { display: block; animation: pulseWarning 2s ease-in-out infinite; }
+@keyframes pulseWarning { 0%,100%{ border-color: rgba(251,191,36,0.3); } 50%{ border-color: var(--amber); } }
+.sb-title { color: var(--amber); font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+.sb-detail { color: var(--text2); font-size: 11px; }
+
+.transfer-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 100; display: none; align-items: center; justify-content: center; }
+.transfer-modal.open { display: flex; }
+.tm-box { background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--r2); padding: 24px; width: 400px; }
+.tm-title { font-size: 15px; font-weight: 700; margin-bottom: 16px; }
+.tm-row { margin-bottom: 12px; }
+.tm-label { font-size: 11px; color: var(--text3); margin-bottom: 4px; }
+.tm-input { width: 100%; padding: 8px 10px; background: var(--surface); border: 1px solid var(--border2); color: var(--text); font-size: 13px; font-family: var(--mono); border-radius: var(--r); }
+.tm-input:focus { outline: none; border-color: var(--green); }
+
+/* TABS */
+.tab-bar { display: flex; border-bottom: 1px solid var(--border); }
+.tab { padding: 8px 14px; font-size: 11px; font-weight: 600; color: var(--text3); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; letter-spacing: 0.5px; }
+.tab:hover { color: var(--text2); }
+.tab.active { color: var(--green); border-bottom-color: var(--green); }
+.tab-content { display: none; flex: 1; overflow-y: auto; flex-direction: column; }
+.tab-content.active { display: flex; }
+
+/* HEALTH RING */
+.health-ring { display: flex; align-items: center; gap: 10px; padding: 10px 16px; }
+.health-ring svg { transform: rotate(-90deg); }
+
+/* ── DB SCHEMA STYLES ── */
+.schema-wrap { padding: 16px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
+.schema-header { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--text3); padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.schema-tables { display: flex; gap: 12px; flex-wrap: wrap; }
+.db-table { background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--r2); min-width: 200px; flex: 1; overflow: hidden; }
+.db-table-header { background: rgba(74,222,128,0.08); border-bottom: 1px solid var(--border2); padding: 8px 12px; display: flex; align-items: center; gap: 8px; }
+.db-table-icon { font-size: 13px; }
+.db-table-name { font-size: 13px; font-weight: 700; font-family: var(--mono); color: var(--green); }
+.db-col { display: flex; align-items: center; gap: 8px; padding: 5px 12px; border-bottom: 1px solid rgba(74,222,128,0.06); font-size: 11px; font-family: var(--mono); }
+.db-col:last-child { border-bottom: none; }
+.db-col-key { width: 14px; color: var(--amber); flex-shrink: 0; font-size: 10px; }
+.db-col-name { color: var(--text); flex: 1; }
+.db-col-type { color: var(--blue); font-size: 10px; }
+.db-col-constraint { color: var(--text3); font-size: 9px; padding: 1px 4px; background: var(--bg4); border-radius: 3px; }
+.db-col.pk .db-col-name { color: var(--amber); }
+.db-col.fk .db-col-name { color: var(--cyan); }
+.schema-relations { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--r2); padding: 12px; }
+.rel-title { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: 0.5px; margin-bottom: 10px; text-transform: uppercase; }
+.rel-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid rgba(74,222,128,0.06); font-size: 11px; font-family: var(--mono); }
+.rel-row:last-child { border-bottom: none; }
+.rel-from { color: var(--amber); }
+.rel-arrow { color: var(--text3); }
+.rel-to { color: var(--cyan); }
+.rel-type { color: var(--text3); font-size: 10px; margin-left: auto; }
+.dbml-block { background: var(--bg4); border: 1px solid var(--border); border-radius: var(--r); padding: 12px; font-family: var(--mono); font-size: 10px; line-height: 1.6; overflow-x: auto; white-space: pre; }
+.dbml-kw { color: var(--amber); }
+.dbml-tbl { color: var(--green); }
+.dbml-col { color: var(--text); }
+.dbml-type { color: var(--blue); }
+.dbml-comment { color: var(--text3); }
+.dbml-ref { color: var(--cyan); }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="logo">
+      <div class="logo-pulse"></div>
+      IslandPulse
+      <span class="logo-sub">JM Emergency Mesh v2.0</span>
+    </div>
+    <div class="spacer"></div>
+    <div class="mesh-status">
+      <div class="stat-pill"><div class="dot green"></div>MESH <span class="val" id="tp-online">14/14</span></div>
+      <div class="stat-pill">SYNC <span class="val" id="tp-sync">0</span>/s</div>
+      <div class="stat-pill">QUORUM <span class="val" id="tp-quorum">✓</span></div>
+      <div class="stat-pill">VCLOCK <span class="val" id="tp-vclock">0</span></div>
+    </div>
+    <div class="clock" id="clock">00:00:00 UTC</div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sec-label">Parish Nodes</div>
+    <div id="node-list"></div>
+    <div class="divider"></div>
+    <div class="sec-label">Actions</div>
+    <div class="action-panel">
+      <div class="action-row">
+        <button class="act-btn primary" onclick="openTransferModal()">📦 Transfer</button>
+        <button class="act-btn" onclick="globalRebalance()">⚖ Rebalance</button>
+      </div>
+      <div class="action-row">
+        <button class="act-btn danger" onclick="triggerRandomCrisis()">🚨 Rnd Crisis</button>
+        <button class="act-btn" onclick="electLeader(null)">🗳 Election</button>
+      </div>
+      <div class="action-row">
+        <select class="act-select" id="crisis-parish-select"><option value="">— Parish —</option></select>
+        <select class="act-select" id="crisis-type-select">
+          <option value="HURRICANE">Hurricane</option>
+          <option value="EARTHQUAKE">Earthquake</option>
+          <option value="FLOODING">Flooding</option>
+          <option value="GRID_FAILURE">Grid Fail</option>
+          <option value="SUPPLY_DISRUPTION">Supply</option>
+        </select>
+      </div>
+      <div class="action-row">
+        <button class="act-btn danger" style="flex:1" onclick="triggerTargetedCrisis()">⚡ Trigger Crisis</button>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="sec-label">Vector Clock</div>
+    <div class="vclock-grid" id="vclock-display"></div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- Metrics -->
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="metric-label">MESH HEALTH</div>
+        <div class="metric-val green" id="m-health">100%</div>
+        <div class="metric-sub" id="m-health-sub">All nodes nominal</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">NODES ONLINE</div>
+        <div class="metric-val blue" id="m-nodes">14 / 14</div>
+        <div class="metric-sub" id="m-nodes-sub">0 degraded, 0 offline</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">SYNC OPS/TICK</div>
+        <div class="metric-val amber" id="m-sync">0</div>
+        <div class="metric-sub" id="m-sync-sub">across all parishes</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">ACTIVE ALERTS</div>
+        <div class="metric-val red" id="m-alerts">0</div>
+        <div class="metric-sub" id="m-alerts-sub">No active crises</div>
+      </div>
+    </div>
+
+    <!-- Jamaica Map -->
+    <div class="map-container">
+      <div class="map-title">📍 Jamaica Parish Mesh — Real-time Node Status</div>
+      <svg id="island-map" viewBox="0 0 800 260" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+
+    <!-- Resource bars -->
+    <div class="resource-section">
+      <div class="res-title" id="res-section-title">🗺 All Parishes — Resource Aggregate</div>
+      <div id="resource-bars"></div>
+    </div>
+
+    <!-- Sync feed -->
+    <div class="sync-feed">
+      <div class="sync-title">🔄 Recent Sync Operations</div>
+      <div id="sync-log-list"></div>
+    </div>
+  </div>
+
+  <!-- PANEL -->
+  <div class="panel">
+    <div class="health-ring">
+      <svg width="44" height="44" viewBox="0 0 44 44">
+        <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(74,222,128,0.12)" stroke-width="4"/>
+        <circle id="health-arc" cx="22" cy="22" r="18" fill="none" stroke="var(--green)" stroke-width="4"
+          stroke-dasharray="113.1" stroke-dashoffset="0" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--green)" id="health-ring-pct">100%</div>
+        <div style="font-size:10px;color:var(--text3)">Mesh Health</div>
+      </div>
+    </div>
+    <div id="sb-banner" class="sb-banner">
+      <div class="sb-title">⚠ SPLIT BRAIN DETECTED</div>
+      <div class="sb-detail" id="sb-detail"></div>
+    </div>
+    <div class="tab-bar">
+      <div class="tab active" onclick="switchTab('events')">Events</div>
+      <div class="tab" onclick="switchTab('alerts')">Alerts</div>
+      <div class="tab" onclick="switchTab('detail')">Detail</div>
+      <div class="tab" onclick="switchTab('schema')">Schema</div>
+    </div>
+
+    <!-- Events -->
+    <div class="tab-content active" id="tab-events">
+      <div class="event-log" id="event-log"></div>
+    </div>
+
+    <!-- Alerts -->
+    <div class="tab-content" id="tab-alerts">
+      <div class="alert-strip">
+        <div style="color:var(--text3);font-size:11px;padding:4px 0" id="no-alerts-msg">✅ No active crises</div>
+        <div id="alert-list"></div>
+      </div>
+    </div>
+
+    <!-- Node Detail -->
+    <div class="tab-content" id="tab-detail">
+      <div class="node-detail">
+        <div id="node-detail-content">
+          <div style="color:var(--text3);font-size:12px;padding:8px 0">Select a parish node to inspect</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DB SCHEMA TAB -->
+    <div class="tab-content" id="tab-schema">
+      <div class="schema-wrap">
+        <div class="schema-header">🗄 EstateFlow Database Schema · PostgreSQL</div>
+
+        <div class="schema-tables">
+
+          <div class="db-table">
+            <div class="db-table-header">
+              <span class="db-table-icon">👤</span>
+              <span class="db-table-name">users</span>
+            </div>
+            <div class="db-col pk">
+              <span class="db-col-key">🔑</span>
+              <span class="db-col-name">id</span>
+              <span class="db-col-type">integer</span>
+              <span class="db-col-constraint">PK</span>
+            </div>
+            <div class="db-col">
+              <span class="db-col-key"></span>
+              <span class="db-col-name">full_name</span>
+              <span class="db-col-type">varchar</span>
+            </div>
+            <div class="db-col">
+              <span class="db-col-key"></span>
+              <span class="db-col-name">last_name</span>
+              <span class="db-col-type">varchar</span>
+            </div>
+            <div class="db-col">
+              <span class="db-col-key"></span>
+              <span class="db-col-name">email</span>
+              <span class="db-col-type">varchar</span>
+              <span class="db-col-constraint">UNIQUE</span>
+            </div>
+            <div class="db-col">
+              <span class="db-col-key"></span>
+              <span class="db-col-name">created_at</span>
+              <span class="db-col-type">timestamp</span>
+            </div>
+            <div class="db-col">
+              <span class="db-col-key"></span>
+              <span class="db-col-name">updated_at</span>
+              <span class="db-col-type">timestamp</span>
+            </div>
+          </div>
+
+          <div class="db-table">
+            <div class="db-table-header">
+              <span class="db-table-icon">🏠</span>
+              <span class="db-table-name">properties</span>
+            </div>
+            <div class="db-col pk">
+              <span class="db-col-key">🔑</span>
+              <span class="db-col-name">id</span>
+              <span class="db-col-type">integer</span>
+              <span class="db-col-constraint">PK</span>
+            </div>
+            <div class="db-col fk">
+              <span class="db-col-key">🔗</span>
+              <span class="db-col-name">user_id</span>
+              <span class="db-col-type">integer</span>
+              <span class="db-col-constraint">FK → users</span>
+            </div>
+            <div class="db-col">
+              <span class="db-col-key"></span>
+              <span class="db-col-name">address</span>
+              <span class="db-col-type">varchar</span>
+            </div>
+            <div class="db-col">
+              <span class="db-col-key"></span>
+              <span class="db-col-name">total_valuation</span>
+              <span class="db-col-type">numeric</span>
+            </div>
+            <div class="db-col">
+              <span class="db-col-key"></span>
+              <span class="db-col-name">total_shares_available</span>
+              <span class="db-col-type">integer</span>
+            </div>
+            <div class="db-col">
+              <span class="db-col-key"></span>
+              <span class="db-col-name">created_at</span>
+              <span class="db-col-type">timestamp</span>
+            </div>
+            <div class="db-col">
+              <span class="db-col-key"></span>
+              <span class="db-col-name">updated_at</span>
+              <span class="db-col-type">timestamp</span>
+            </div>
+          </div>
+
+          <div class="db-table">
+            <div class="db-table-header">
+              <span class="db-table-icon">📊</span>
+              <span class="db-table-name">ownership</span>
+            </div>
+            <div class="db-col pk">
+              <span class="db-col-key">🔑</span>
+              <span class="db-col-name">id</span>
+              <span class="db-col-type">integer</span>
+              <span class="db-col-constraint">PK</span>
+            </div>
+            <div class="db-col fk">
+              <span class="db-col-key">🔗</span>
+              <span class="db-col-name">property_id</span>
+              <span class="db-col-type">integer</span>
+              <span class="db-col-constraint">FK → properties</span>
+            </div>
+            <div class="db-col fk">
+              <span class="db-col-key">🔗</span>
+              <span class="db-col-name">user_id</span>
+              <span class="db-col-type">integer</span>
+              <span class="db-col-constraint">FK → users</span>
+            </div>
+            <div class="db-col">
+              <span class="db-col-key"></span>
+              <span class="db-col-name">shares_owned</span>
+              <span class="db-col-type">integer</span>
+            </div>
+            <div class="db-col">
+              <span class="db-col-key"></span>
+              <span class="db-col-name">created_at</span>
+              <span class="db-col-type">timestamp</span>
+            </div>
+            <div class="db-col">
+              <span class="db-col-key"></span>
+              <span class="db-col-name">updated_at</span>
+              <span class="db-col-type">timestamp</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Relationships -->
+        <div class="schema-relations">
+          <div class="rel-title">Relationships</div>
+          <div class="rel-row">
+            <span class="rel-from">users.id</span>
+            <span class="rel-arrow">──1:M──▶</span>
+            <span class="rel-to">properties.user_id</span>
+            <span class="rel-type">creator</span>
+          </div>
+          <div class="rel-row">
+            <span class="rel-from">users.id</span>
+            <span class="rel-arrow">──1:M──▶</span>
+            <span class="rel-to">ownership.user_id</span>
+            <span class="rel-type">shareholder</span>
+          </div>
+          <div class="rel-row">
+            <span class="rel-from">properties.id</span>
+            <span class="rel-arrow">──1:M──▶</span>
+            <span class="rel-to">ownership.property_id</span>
+            <span class="rel-type">fractional</span>
+          </div>
+        </div>
+
+        <!-- DBML snippet -->
+        <div>
+          <div class="rel-title" style="margin-bottom:6px;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text3)">DBML Source</div>
+          <div class="dbml-block"><span class="dbml-kw">Table</span> <span class="dbml-tbl">users</span> {
+  <span class="dbml-col">id</span>         <span class="dbml-type">integer</span>   [<span class="dbml-ref">primary key</span>]
+  <span class="dbml-col">full_name</span>  <span class="dbml-type">varchar</span>
+  <span class="dbml-col">last_name</span>  <span class="dbml-type">varchar</span>
+  <span class="dbml-col">email</span>      <span class="dbml-type">varchar</span>
+  <span class="dbml-col">created_at</span> <span class="dbml-type">timestamp</span>
+  <span class="dbml-col">updated_at</span> <span class="dbml-type">timestamp</span>
+}
+
+<span class="dbml-kw">Table</span> <span class="dbml-tbl">properties</span> {
+  <span class="dbml-col">id</span>                    <span class="dbml-type">integer</span>  [<span class="dbml-ref">primary key</span>]
+  <span class="dbml-col">user_id</span>               <span class="dbml-type">integer</span>  [<span class="dbml-ref">not null, ref: > users.id</span>]
+  <span class="dbml-col">address</span>               <span class="dbml-type">varchar</span>
+  <span class="dbml-col">total_valuation</span>       <span class="dbml-type">numeric</span>
+  <span class="dbml-col">total_shares_available</span> <span class="dbml-type">integer</span>
+  <span class="dbml-col">created_at</span>            <span class="dbml-type">timestamp</span>
+  <span class="dbml-col">updated_at</span>            <span class="dbml-type">timestamp</span>
+}
+
+<span class="dbml-kw">Table</span> <span class="dbml-tbl">ownership</span> {
+  <span class="dbml-col">id</span>          <span class="dbml-type">integer</span> [<span class="dbml-ref">primary key</span>]
+  <span class="dbml-col">property_id</span> <span class="dbml-type">integer</span> [<span class="dbml-ref">not null, ref: > properties.id</span>]
+  <span class="dbml-col">user_id</span>     <span class="dbml-type">integer</span> [<span class="dbml-ref">not null, ref: > users.id</span>]
+  <span class="dbml-col">shares_owned</span> <span class="dbml-type">integer</span>
+  <span class="dbml-col">created_at</span>  <span class="dbml-type">timestamp</span>
+  <span class="dbml-col">updated_at</span>  <span class="dbml-type">timestamp</span>
+}</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Transfer Modal -->
+<div class="transfer-modal" id="transfer-modal">
+  <div class="tm-box">
+    <div class="tm-title">📦 Manual Resource Transfer</div>
+    <div class="tm-row">
+      <div class="tm-label">From Parish</div>
+      <select class="tm-input" id="tm-from"></select>
+    </div>
+    <div class="tm-row">
+      <div class="tm-label">To Parish</div>
+      <select class="tm-input" id="tm-to"></select>
+    </div>
+    <div class="tm-row">
+      <div class="tm-label">Resource</div>
+      <select class="tm-input" id="tm-resource">
+        <option value="water">💧 Water</option>
+        <option value="food">🌾 Food</option>
+        <option value="medical">⚕️ Medical</option>
+        <option value="fuel">⛽ Fuel</option>
+        <option value="power">⚡ Power</option>
+        <option value="comms">📡 Comms</option>
+      </select>
+    </div>
+    <div class="tm-row">
+      <div class="tm-label">Amount</div>
+      <input class="tm-input" id="tm-amount" type="number" value="1000" min="1">
+    </div>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button class="act-btn primary" style="flex:1" onclick="executeTransfer()">✓ Execute</button>
+      <button class="act-btn" onclick="closeTransferModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// IslandPulse v2 — Jamaica Emergency Mesh Simulator
+// 14-parish distributed node network with accurate map
+// ═══════════════════════════════════════════════════════
+
+const PARISHES = {
+  hanover:      { id:'hanover',      name:'Hanover',       pop:70085,  lat:18.40, lng:-78.13, mapX:82,  mapY:80,  coastalRisk:'high'   },
+  stJames:      { id:'stJames',      name:'St. James',     pop:183811, lat:18.48, lng:-77.91, mapX:140, mapY:55,  coastalRisk:'medium' },
+  trelawny:     { id:'trelawny',     name:'Trelawny',      pop:75853,  lat:18.35, lng:-77.60, mapX:215, mapY:68,  coastalRisk:'low'    },
+  stAnn:        { id:'stAnn',        name:'St. Ann',       pop:173512, lat:18.44, lng:-77.20, mapX:310, mapY:55,  coastalRisk:'low'    },
+  stMary:       { id:'stMary',       name:'St. Mary',      pop:116099, lat:18.36, lng:-76.92, mapX:400, mapY:72,  coastalRisk:'medium' },
+  portland:     { id:'portland',     name:'Portland',      pop:81553,  lat:18.18, lng:-76.45, mapX:490, mapY:88,  coastalRisk:'medium' },
+  stThomas:     { id:'stThomas',     name:'St. Thomas',    pop:94108,  lat:17.98, lng:-76.34, mapX:545, mapY:148, coastalRisk:'high'   },
+  kingston:     { id:'kingston',     name:'Kingston',      pop:96052,  lat:17.97, lng:-76.79, mapX:475, mapY:170, coastalRisk:'high'   },
+  stCatherine:  { id:'stCatherine',  name:'St. Catherine', pop:519953, lat:18.00, lng:-77.03, mapX:410, mapY:158, coastalRisk:'medium' },
+  clarendon:    { id:'clarendon',    name:'Clarendon',     pop:246171, lat:17.96, lng:-77.24, mapX:338, mapY:162, coastalRisk:'medium' },
+  manchester:   { id:'manchester',   name:'Manchester',    pop:191513, lat:18.04, lng:-77.51, mapX:265, mapY:145, coastalRisk:'none'   },
+  stElizabeth:  { id:'stElizabeth',  name:'St. Elizabeth', pop:151466, lat:18.03, lng:-77.74, mapX:195, mapY:158, coastalRisk:'low'   },
+  westmoreland: { id:'westmoreland', name:'Westmoreland',  pop:144103, lat:18.22, lng:-78.13, mapX:112, mapY:145, coastalRisk:'high'  },
+  stAndrew:     { id:'stAndrew',     name:'St. Andrew',    pop:573369, lat:18.07, lng:-76.80, mapX:452, mapY:140, coastalRisk:'medium' },
+};
+
+const RESOURCE_TYPES = {
+  water:   { icon:'💧', unit:'gal',    critical:5000,  nominal:50000,  max:100000, label:'Water'   },
+  food:    { icon:'🌾', unit:'ration', critical:200,   nominal:2000,   max:5000,   label:'Food'    },
+  medical: { icon:'⚕️', unit:'kit',    critical:50,    nominal:500,    max:1200,   label:'Medical' },
+  fuel:    { icon:'⛽', unit:'L',       critical:1000,  nominal:15000,  max:40000,  label:'Fuel'    },
+  power:   { icon:'⚡', unit:'kWh',    critical:500,   nominal:8000,   max:20000,  label:'Power'   },
+  comms:   { icon:'📡', unit:'unit',   critical:10,    nominal:100,    max:300,    label:'Comms'   },
+};
+
+const CRISIS_TYPES = {
+  HURRICANE:         { name:'Hurricane Warning',       drain:{ water:0.35, food:0.25, fuel:0.45 } },
+  EARTHQUAKE:        { name:'Seismic Event',            drain:{ medical:0.55, comms:0.65 } },
+  FLOODING:          { name:'Flash Flooding',           drain:{ water:0.15, power:0.55 } },
+  GRID_FAILURE:      { name:'Power Grid Failure',       drain:{ power:0.85, comms:0.35 } },
+  SUPPLY_DISRUPTION: { name:'Supply Chain Disruption',  drain:{ food:0.45, medical:0.35 } },
+};
+
+let mesh = { nodes:{}, resources:{}, events:[], syncs:[], vclock:{}, alerts:[], tick:0, splitBrain:false };
+let selectedNode = null;
+let tickCount = 0;
+
+function initMesh() {
+  Object.keys(PARISHES).forEach(id => {
+    const p = PARISHES[id];
+    mesh.vclock[id] = 0;
+    mesh.nodes[id] = {
+      id, name:p.name,
+      status:'online',
+      role: id==='kingston' ? 'primary' : 'replica',
+      isLeader: id==='kingston',
+      term: 1,
+      heartbeatCount: 0,
+      uptime: Math.floor(Math.random()*86400*14),
+      networkLatency: Math.floor(Math.random()*40)+5,
+      syncedWith: [],
+      pendingWrites: 0,
+    };
+    mesh.resources[id] = {};
+    Object.keys(RESOURCE_TYPES).forEach(rt => {
+      const cfg = RESOURCE_TYPES[rt];
+      const ratio = id==='kingston' ? 0.85 : 0.35 + Math.random()*0.45;
+      mesh.resources[id][rt] = { current: Math.floor(cfg.max * ratio), capacity: cfg.max, inbound:0, outbound:0, trend:'stable' };
+    });
+  });
+
+  const parishOpts = Object.values(PARISHES).map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+  document.getElementById('tm-from').innerHTML = parishOpts;
+  document.getElementById('tm-to').innerHTML = parishOpts;
+  document.getElementById('crisis-parish-select').innerHTML = '<option value="">— Parish —</option>' + parishOpts;
+
+  logEvent('SYSTEM', '🟢 IslandPulse mesh initialized — 14 Jamaica parish nodes online');
+  logEvent('SYSTEM', '📡 Vector clocks initialized — Lamport timestamp protocol active');
+  logEvent('SYSTEM', '🗳 Kingston designated primary node (term 1)');
+  logEvent('SYSTEM', '🔄 Quorum set: 8/14 nodes required for write consensus');
+}
+
+function vTick(nodeId) { mesh.vclock[nodeId] = (mesh.vclock[nodeId]||0) + 1; }
+function vMerge(a, b) {
+  Object.keys(b).forEach(k => { a[k] = Math.max(a[k]||0, b[k]||0); });
+}
+
+function transferResource(fromId, toId, rt, amount) {
+  const fromRes = mesh.resources[fromId][rt];
+  const toRes = mesh.resources[toId][rt];
+  const cfg = RESOURCE_TYPES[rt];
+  const actual = Math.min(amount, fromRes.current, cfg.max - toRes.current);
+  if (actual <= 0) return 0;
+  fromRes.current -= actual;
+  toRes.current += actual;
+  fromRes.outbound += actual;
+  toRes.inbound += actual;
+  vTick(fromId); vTick(toId);
+  vMerge(mesh.vclock, mesh.vclock);
+  mesh.syncs.unshift({ ts:Date.now(), fromId, toId, fromName:PARISHES[fromId].name, toName:PARISHES[toId].name, resource:rt, amount:actual });
+  if (mesh.syncs.length > 50) mesh.syncs.pop();
+  return actual;
+}
+
+function triggerCrisis(parishId, type) {
+  const p = PARISHES[parishId];
+  const crisis = CRISIS_TYPES[type];
+  Object.keys(crisis.drain).forEach(rt => {
+    if (mesh.resources[parishId][rt]) {
+      const cur = mesh.resources[parishId][rt].current;
+      mesh.resources[parishId][rt].current = Math.max(0, Math.floor(cur*(1-crisis.drain[rt])));
+      mesh.resources[parishId][rt].trend = 'critical';
+    }
+  });
+  const alert = { id: Date.now()+Math.random(), ts:Date.now(), parish:parishId, parishName:p.name, type, name:crisis.name, active:true };
+  mesh.alerts.unshift(alert);
+  logEvent('CRISIS', `🚨 ${crisis.name} at ${p.name} — resources critically drained`);
+}
+
+function electLeader(failedId) {
+  const candidates = Object.values(mesh.nodes).filter(n => n.status==='online' && n.id!==failedId);
+  if (!candidates.length) return;
+  const winner = candidates.sort((a,b) => b.heartbeatCount - a.heartbeatCount)[0];
+  const term = Math.max(...Object.values(mesh.nodes).map(n=>n.term)) + 1;
+  Object.values(mesh.nodes).forEach(n => { n.isLeader=false; if(n.id!==winner.id) n.role='replica'; });
+  winner.isLeader = true; winner.role='primary'; winner.term = term;
+  logEvent('LEADER_ELECTION', `🗳 Leader election (term ${term}): ${winner.name} elected as new primary`);
+}
+
+function checkSplitBrain() {
+  const online = Object.values(mesh.nodes).filter(n=>n.status==='online').length;
+  const total = Object.keys(mesh.nodes).length;
+  const quorum = Math.ceil(total/2)+1;
+  const splitBrain = online < quorum;
+  mesh.splitBrain = splitBrain;
+  const banner = document.getElementById('sb-banner');
+  if (splitBrain) {
+    banner.classList.add('active');
+    document.getElementById('sb-detail').textContent = `${online}/${total} nodes reachable — quorum requires ${quorum}`;
+  } else {
+    banner.classList.remove('active');
+  }
+}
+
+function simulationTick() {
+  tickCount++;
+  let syncCount = 0;
+  Object.keys(mesh.nodes).forEach(id => {
+    const node = mesh.nodes[id];
+    node.heartbeatCount++;
+    const p = PARISHES[id];
+    if (node.status !== 'online') return;
+    node.networkLatency = Math.max(5, node.networkLatency + (Math.random()*10-5));
+    Object.keys(RESOURCE_TYPES).forEach(rt => {
+      const r = mesh.resources[id][rt];
+      const cfg = RESOURCE_TYPES[rt];
+      const drain = Math.floor(cfg.nominal * 0.02 * (0.8+Math.random()*0.5));
+      r.current = Math.max(0, r.current - drain);
+      r.trend = r.current < cfg.critical ? 'critical' : r.current < cfg.nominal*0.4 ? 'low' : 'stable';
+    });
+    const partners = Object.keys(mesh.nodes).filter(k=>k!==id&&mesh.nodes[k].status==='online');
+    if (partners.length && Math.random() < 0.3) {
+      const partner = partners[Math.floor(Math.random()*partners.length)];
+      vTick(id); vMerge(mesh.vclock, mesh.vclock);
+      node.syncedWith = [partner]; syncCount++;
+    }
+    if (node.pendingWrites > 0) node.pendingWrites = Math.max(0, node.pendingWrites-2);
+  });
+
+  // Random node status fluctuation
+  if (Math.random() < 0.05) {
+    const ids = Object.keys(mesh.nodes);
+    const id = ids[Math.floor(Math.random()*ids.length)];
+    const n = mesh.nodes[id];
+    if (n.status === 'online' && !n.isLeader && Math.random() < 0.3) {
+      n.status = 'degraded';
+      logEvent('NODE_DEGRADED', `🟡 ${PARISHES[id].name} — intermittent connectivity`);
+    } else if (n.status === 'degraded') {
+      n.status = 'online';
+      n.pendingWrites = Math.floor(Math.random()*15)+3;
+      logEvent('NODE_UP', `🟢 ${PARISHES[id].name} recovered — syncing ${n.pendingWrites} writes`);
+    }
+  }
+
+  // Auto-rebalance
+  Object.keys(mesh.resources).forEach(toId => {
+    if (mesh.nodes[toId].status!=='online') return;
+    Object.keys(RESOURCE_TYPES).forEach(rt => {
+      const cfg = RESOURCE_TYPES[rt];
+      const toRes = mesh.resources[toId][rt];
+      if (toRes.current < cfg.critical * 1.5) {
+        const donors = Object.keys(mesh.resources)
+          .filter(fId=>fId!==toId&&mesh.nodes[fId].status==='online'&&mesh.resources[fId][rt].current > cfg.nominal)
+          .sort((a,b)=>mesh.resources[b][rt].current-mesh.resources[a][rt].current);
+        if (donors.length) {
+          const amount = Math.floor((mesh.resources[donors[0]][rt].current - cfg.nominal)*0.25);
+          if (amount > 50) {
+            const actual = transferResource(donors[0], toId, rt, amount);
+            if (actual) logEvent('AUTO_REBALANCE', `📦 ${cfg.icon} Auto: ${actual.toLocaleString()} ${cfg.unit} → ${PARISHES[toId].name} from ${PARISHES[donors[0]].name}`);
+          }
+        }
+      }
+    });
+  });
+
+  document.getElementById('tp-sync').textContent = syncCount;
+  document.getElementById('tp-vclock').textContent = Object.values(mesh.vclock).reduce((s,v)=>s+v,0);
+  checkSplitBrain();
+  render();
+}
+
+function render() {
+  renderNodeList();
+  renderMap();
+  renderResourceBars();
+  renderSyncLog();
+  renderVectorClock();
+  renderEventLog();
+  renderAlerts();
+  updateTopbar();
+  if (selectedNode) renderNodeDetail(selectedNode);
+}
+
+function updateTopbar() {
+  const nodes = Object.values(mesh.nodes);
+  const online = nodes.filter(n=>n.status==='online').length;
+  const total = nodes.length;
+  document.getElementById('tp-online').textContent = `${online}/${total}`;
+  const dot = document.querySelector('.stat-pill .dot');
+  if (dot) { dot.className = 'dot ' + (online===total?'green':online<total*0.7?'red':'amber'); }
+  document.getElementById('tp-quorum').textContent = online >= Math.ceil(total/2)+1 ? '✓' : '✗';
+}
+
+function renderNodeList() {
+  const html = Object.values(PARISHES).map(p => {
+    const n = mesh.nodes[p.id];
+    return `<div class="node-item ${selectedNode===p.id?'active':''} ${n.isLeader?'leader':''} ${n.status}"
+      onclick="selectNode('${p.id}')">
+      <div class="node-dot ${n.status}"></div>
+      <div>
+        <div class="node-name">${p.name}</div>
+        <div class="node-role">${n.role} · ${Math.round(n.networkLatency)}ms</div>
+      </div>
+      <div class="node-controls">
+        ${n.status==='online'
+          ? `<button class="node-btn danger" onclick="event.stopPropagation();setNodeStatus('${p.id}','offline')">✕</button>`
+          : `<button class="node-btn" onclick="event.stopPropagation();setNodeStatus('${p.id}','online')">↑</button>`}
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('node-list').innerHTML = html;
+
+  // Metrics
+  const nodes = Object.values(mesh.nodes);
+  const online = nodes.filter(n=>n.status==='online').length;
+  const degraded = nodes.filter(n=>n.status==='degraded').length;
+  const offline = nodes.filter(n=>n.status==='offline').length;
+  const total = nodes.length;
+  const health = Math.round((online/total)*100);
+
+  document.getElementById('m-health').textContent = health+'%';
+  document.getElementById('m-health').className = 'metric-val '+(health===100?'green':health<70?'red':'amber');
+  document.getElementById('m-health-sub').textContent = health===100?'All nodes nominal':`${offline} offline, ${degraded} degraded`;
+  document.getElementById('m-nodes').textContent = `${online} / ${total}`;
+  document.getElementById('m-nodes-sub').textContent = `${degraded} degraded, ${offline} offline`;
+  document.getElementById('m-sync').textContent = mesh.syncs.filter(s=>Date.now()-s.ts<10000).length;
+  document.getElementById('m-alerts').textContent = mesh.alerts.filter(a=>a.active).length;
+  document.getElementById('m-alerts-sub').textContent = mesh.alerts.filter(a=>a.active).length?'Active crises detected':'No active crises';
+
+  // Health ring
+  const circ = 2*Math.PI*18;
+  document.getElementById('health-arc').style.strokeDashoffset = circ*(1-health/100);
+  document.getElementById('health-arc').style.stroke = health===100?'var(--green)':health<70?'var(--red)':'var(--amber)';
+  document.getElementById('health-ring-pct').textContent = health+'%';
+  document.getElementById('health-ring-pct').style.color = health===100?'var(--green)':health<70?'var(--red)':'var(--amber)';
+}
+
+// ═══════════════════════════════════════════════════════
+// JAMAICA MAP — Accurate parish geography
+// SVG viewBox 0 0 800 260, island roughly centered
+// ═══════════════════════════════════════════════════════
+function renderMap() {
+  const svg = document.getElementById('island-map');
+
+  // Realistic Jamaica island silhouette (hand-traced from real geography)
+  // The island runs E-W, elongated, with Blue Mountains in east and flat plains in west
+  const islandOutline = `
+    M 58,142 C 62,138 68,132 76,126 C 84,120 92,114 100,110
+    C 108,106 116,104 122,102 C 130,100 138,100 144,96
+    C 150,92 154,86 160,82 C 166,78 172,76 180,72
+    C 188,68 196,66 204,64 C 212,62 220,62 228,62
+    C 236,62 244,64 252,66 C 260,68 268,70 278,68
+    C 288,66 298,62 310,58 C 322,54 334,52 346,52
+    C 358,52 370,54 380,56 C 390,58 400,62 410,64
+    C 420,66 430,66 440,66 C 450,66 460,66 470,68
+    C 480,70 488,72 496,76 C 504,80 510,86 516,92
+    C 522,98 526,104 532,110 C 538,116 544,122 550,130
+    C 556,138 560,146 562,154 C 564,162 562,170 558,176
+    C 554,182 548,186 540,188 C 532,190 522,190 512,188
+    C 502,186 492,182 482,180 C 472,178 462,176 452,176
+    C 442,176 432,178 420,180 C 408,182 394,184 380,186
+    C 366,188 350,190 334,190 C 318,190 302,188 286,186
+    C 270,184 256,180 242,178 C 228,176 214,174 200,174
+    C 186,174 172,174 160,172 C 148,170 136,168 124,164
+    C 112,160 100,156 90,150 C 80,144 70,138 64,134
+    C 60,131 57,137 58,142 Z
+  `;
+
+  // Ocean/water backdrop
+  const oceanBg = `<rect x="0" y="0" width="800" height="260" fill="rgba(10,30,40,0.6)" rx="8"/>`;
+
+  // Parish boundary areas (approximate polygons matching real geography)
+  const parishAreas = {
+    hanover:      `M 58,142 C 64,136 70,128 78,122 C 86,116 92,112 98,108 C 106,104 112,102 118,100 L 126,118 C 118,122 110,128 104,134 C 98,140 92,146 86,152 C 80,156 72,158 66,156 Z`,
+    stJames:      `M 118,100 C 126,98 134,98 140,94 C 148,90 152,84 158,80 L 170,100 C 162,106 154,110 146,114 C 138,118 130,120 122,120 L 118,100 Z`,
+    trelawny:     `M 158,80 C 166,76 174,72 182,70 C 190,68 198,66 206,64 L 218,84 C 208,86 198,90 190,96 C 182,102 174,108 166,112 L 158,80 Z`,
+    stAnn:        `M 206,64 C 214,62 222,62 230,62 C 238,62 248,64 256,66 C 264,68 270,70 278,68 L 280,90 C 270,92 260,90 250,88 C 240,86 230,84 220,84 C 210,84 202,86 196,90 L 206,64 Z`,
+    stMary:       `M 278,68 C 290,66 300,62 312,58 C 322,54 334,52 348,52 L 350,76 C 336,78 322,80 310,84 C 298,88 288,94 278,98 L 278,68 Z`,
+    portland:     `M 348,52 C 360,52 372,54 382,56 C 392,58 402,62 412,64 C 422,66 432,68 442,68 L 438,92 C 428,92 416,90 406,88 C 396,86 386,84 376,82 C 366,80 354,78 344,80 L 348,52 Z`,
+    stThomas:     `M 442,68 C 454,68 464,70 474,74 C 482,78 490,84 498,90 C 506,96 512,104 518,112 C 524,120 530,128 534,136 L 510,144 C 506,136 500,128 494,120 C 488,112 480,104 472,98 C 464,92 456,88 448,86 L 442,68 Z`,
+    stAndrew:     `M 344,80 C 354,78 366,80 376,82 C 386,84 396,86 406,88 L 438,92 L 430,116 C 420,116 410,114 400,110 C 390,106 380,100 370,96 C 360,92 350,90 340,92 L 344,80 Z`,
+    kingston:     `M 430,116 L 438,92 L 500,110 C 510,118 516,128 520,138 C 524,148 522,160 516,168 L 500,166 C 500,158 498,150 494,142 C 490,134 484,126 476,120 L 430,116 Z`,
+    stCatherine:  `M 340,92 C 350,90 360,92 370,96 C 380,100 390,106 400,110 C 410,114 420,116 430,116 L 430,140 C 420,140 408,138 396,134 C 384,130 372,126 360,126 C 348,126 338,130 330,136 L 330,120 C 334,112 338,102 340,92 Z`,
+    clarendon:    `M 278,98 C 288,94 298,88 310,84 C 322,80 336,78 350,76 L 344,80 L 340,92 C 330,98 320,106 312,114 C 304,122 298,132 294,142 L 272,140 C 272,130 274,118 278,108 L 278,98 Z`,
+    manchester:   `M 196,90 C 204,86 212,84 220,84 C 230,84 240,86 250,88 C 260,90 270,92 280,90 L 278,98 L 278,108 C 268,112 256,114 244,116 C 232,118 220,118 210,118 C 200,118 192,116 186,112 Z`,
+    stElizabeth:  `M 118,100 L 122,120 C 130,120 138,118 146,114 C 154,110 162,106 170,100 C 178,94 186,90 196,90 L 186,112 C 176,116 166,122 156,128 C 146,134 136,140 128,146 C 120,152 112,158 106,164 L 96,158 C 98,150 102,142 108,136 C 114,130 118,124 118,116 Z`,
+    westmoreland: `M 66,156 C 72,158 80,156 86,152 C 92,146 98,140 104,134 C 110,128 118,122 126,118 L 118,116 C 118,124 114,130 108,136 C 102,142 98,150 96,158 C 92,166 88,172 84,176 C 78,178 70,176 64,170 Z`,
+  };
+
+  // Parish color fills by status
+  const parishFills = Object.keys(parishAreas).map(id => {
+    const n = mesh.nodes[id];
+    const hasAlert = mesh.alerts.some(a=>a.active&&a.parish===id);
+    const fillColor = n.status==='online'
+      ? (hasAlert ? 'rgba(248,113,113,0.18)' : n.isLeader ? 'rgba(251,191,36,0.15)' : 'rgba(74,222,128,0.08)')
+      : n.status==='degraded' ? 'rgba(251,191,36,0.12)' : 'rgba(248,113,113,0.08)';
+    const strokeColor = n.status==='online'
+      ? (hasAlert ? 'rgba(248,113,113,0.6)' : n.isLeader ? 'rgba(251,191,36,0.5)' : 'rgba(74,222,128,0.3)')
+      : n.status==='degraded' ? 'rgba(251,191,36,0.4)' : 'rgba(248,113,113,0.3)';
+    return `<path d="${parishAreas[id]}" fill="${fillColor}" stroke="${strokeColor}" stroke-width="0.8" opacity="0.9" style="cursor:pointer" onclick="selectNode('${id}')"/>`;
+  }).join('');
+
+  // Mesh connections
+  const connections = [
+    ['hanover','stJames'],['stJames','trelawny'],['trelawny','stAnn'],['stAnn','stMary'],
+    ['stMary','portland'],['portland','stThomas'],['stThomas','kingston'],
+    ['kingston','stAndrew'],['stAndrew','stCatherine'],['stCatherine','clarendon'],
+    ['clarendon','manchester'],['manchester','stElizabeth'],['stElizabeth','westmoreland'],
+    ['westmoreland','hanover'],['stAnn','manchester'],['clarendon','kingston'],
+    ['stCatherine','stMary'],['manchester','stJames'],
+  ];
+
+  const lines = connections.map(([a,b]) => {
+    const pa = PARISHES[a], pb = PARISHES[b];
+    const na = mesh.nodes[a], nb = mesh.nodes[b];
+    const bothOnline = na.status==='online' && nb.status==='online';
+    const color = bothOnline ? 'rgba(74,222,128,0.2)' : 'rgba(248,113,113,0.15)';
+    const dash = bothOnline ? '' : 'stroke-dasharray="4,3"';
+    return `<line x1="${pa.mapX}" y1="${pa.mapY}" x2="${pb.mapX}" y2="${pb.mapY}" stroke="${color}" stroke-width="${bothOnline?1.2:0.7}" ${dash}/>`;
+  }).join('');
+
+  // Node dots + labels
+  const nodeDots = Object.values(PARISHES).map(p => {
+    const n = mesh.nodes[p.id];
+    const hasAlert = mesh.alerts.some(a=>a.active&&a.parish===p.id);
+    const isSelected = selectedNode === p.id;
+    const color = n.status==='online' ? (n.isLeader?'#fbbf24':'#4ade80') : n.status==='degraded' ? '#fbbf24' : '#f87171';
+    const r = n.isLeader ? 8 : isSelected ? 7 : 5;
+    const glow = n.status==='online' ? `filter:drop-shadow(0 0 5px ${color})` : '';
+
+    const alertRing = hasAlert
+      ? `<circle cx="${p.mapX}" cy="${p.mapY}" r="${r+7}" fill="none" stroke="#f87171" stroke-width="1.5" opacity="0.5" stroke-dasharray="3,2"><animateTransform attributeName="transform" type="rotate" from="0 ${p.mapX} ${p.mapY}" to="360 ${p.mapX} ${p.mapY}" dur="4s" repeatCount="indefinite"/></circle>`
+      : '';
+    const selectRing = isSelected
+      ? `<circle cx="${p.mapX}" cy="${p.mapY}" r="${r+4}" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.7"/>`
+      : '';
+    const leaderRing = n.isLeader
+      ? `<circle cx="${p.mapX}" cy="${p.mapY}" r="${r+3}" fill="none" stroke="${color}" stroke-width="1" opacity="0.4"/>`
+      : '';
+
+    // Short name for label
+    const parts = p.name.split(' ');
+    const shortName = parts.length > 1 ? parts[parts.length-1] : p.name;
+
+    return `<g style="cursor:pointer;${glow}" onclick="selectNode('${p.id}')">
+      ${alertRing}
+      ${leaderRing}
+      ${selectRing}
+      <circle cx="${p.mapX}" cy="${p.mapY}" r="${r}" fill="${color}" stroke="#0a0e0d" stroke-width="1.5"/>
+      <text x="${p.mapX}" y="${p.mapY - r - 4}" text-anchor="middle" fill="#b0c4bc" font-size="9" font-family="Space Grotesk" font-weight="500">${shortName}</text>
+    </g>`;
+  }).join('');
+
+  // Compass rose
+  const compass = `<g transform="translate(750,30)" opacity="0.4">
+    <text x="0" y="0" text-anchor="middle" fill="#4ade80" font-size="9" font-family="JetBrains Mono">N</text>
+    <line x1="0" y1="3" x2="0" y2="14" stroke="#4ade80" stroke-width="1"/>
+    <polygon points="0,-2 -3,10 0,7 3,10" fill="#4ade80" opacity="0.6" transform="translate(0,4)"/>
+  </g>`;
+
+  // Legend
+  const legend = `<g transform="translate(12,238)">
+    <circle cx="6" cy="0" r="4" fill="#fbbf24"/>
+    <text x="13" y="3" fill="#94a3a0" font-size="8" font-family="Space Grotesk">Primary</text>
+    <circle cx="70" cy="0" r="4" fill="#4ade80"/>
+    <text x="77" y="3" fill="#94a3a0" font-size="8" font-family="Space Grotesk">Online</text>
+    <circle cx="120" cy="0" r="4" fill="#fbbf24"/>
+    <text x="127" y="3" fill="#94a3a0" font-size="8" font-family="Space Grotesk">Degraded</text>
+    <circle cx="180" cy="0" r="4" fill="#f87171"/>
+    <text x="187" y="3" fill="#94a3a0" font-size="8" font-family="Space Grotesk">Offline</text>
+    <circle cx="226" cy="0" r="5" fill="none" stroke="#f87171" stroke-width="1.5" stroke-dasharray="2,1"/>
+    <text x="234" y="3" fill="#94a3a0" font-size="8" font-family="Space Grotesk">Crisis</text>
+  </g>`;
+
+  svg.innerHTML = `
+    ${oceanBg}
+    <text x="400" y="22" text-anchor="middle" fill="rgba(74,222,128,0.15)" font-size="11" font-family="JetBrains Mono" letter-spacing="4">CARIBBEAN SEA</text>
+    <text x="400" y="248" text-anchor="middle" fill="rgba(74,222,128,0.12)" font-size="9" font-family="JetBrains Mono" letter-spacing="3">CARIBBEAN SEA</text>
+    <path d="${islandOutline}" fill="rgba(20,40,30,0.9)" stroke="rgba(74,222,128,0.25)" stroke-width="1.2"/>
+    ${parishFills}
+    ${lines}
+    ${nodeDots}
+    ${compass}
+    ${legend}
+  `;
+}
+
+function renderResourceBars() {
+  const title = document.getElementById('res-section-title');
+  const container = document.getElementById('resource-bars');
+  const nodeId = selectedNode;
+  if (nodeId) {
+    const res = mesh.resources[nodeId];
+    const p = PARISHES[nodeId];
+    title.textContent = `${p.name} — Resource Inventory`;
+    container.innerHTML = Object.entries(RESOURCE_TYPES).map(([rt, cfg]) => {
+      const r = res[rt];
+      const pct = Math.min(100, Math.round((r.current/cfg.max)*100));
+      return `<div class="res-row">
+        <div class="res-header">
+          <div class="res-name">${cfg.icon} ${cfg.label}</div>
+          <div class="res-val">${r.current.toLocaleString()} ${cfg.unit} · <span style="color:${r.trend==='critical'?'var(--red)':r.trend==='low'?'var(--amber)':'var(--green)'}">▶ ${r.trend}</span></div>
+        </div>
+        <div class="res-bar-bg"><div class="res-bar ${r.trend==='critical'?'critical':r.trend==='low'?'low':'ok'}" style="width:${pct}%"></div></div>
+      </div>`;
+    }).join('');
+  } else {
+    title.textContent = '🗺 All Parishes — Resource Aggregate';
+    container.innerHTML = Object.entries(RESOURCE_TYPES).map(([rt, cfg]) => {
+      const total = Object.values(mesh.resources).reduce((s,r)=>s+r[rt].current,0);
+      const maxTotal = cfg.max * Object.keys(PARISHES).length;
+      const pct = Math.min(100, Math.round((total/maxTotal)*100));
+      const critCount = Object.values(mesh.resources).filter(r=>r[rt].current < cfg.critical).length;
+      const barClass = critCount > 3 ? 'critical' : critCount > 0 ? 'low' : 'ok';
+      return `<div class="res-row">
+        <div class="res-header">
+          <div class="res-name">${cfg.icon} ${cfg.label}</div>
+          <div class="res-val">${(total/1000).toFixed(1)}k ${cfg.unit} · ${critCount>0?`<span style="color:var(--red)">${critCount} critical</span>`:'<span style="color:var(--green)">nominal</span>'}</div>
+        </div>
+        <div class="res-bar-bg"><div class="res-bar ${barClass}" style="width:${pct}%"></div></div>
+      </div>`;
+    }).join('');
+  }
+}
+
+function renderSyncLog() {
+  const container = document.getElementById('sync-log-list');
+  container.innerHTML = mesh.syncs.slice(0,20).map(s => {
+    const age = Math.round((Date.now()-s.ts)/1000);
+    const cfg = RESOURCE_TYPES[s.resource];
+    return `<div class="sync-entry">
+      <span class="sync-time">${age}s ago</span>
+      ${cfg?.icon||'📦'} <span class="sync-amount">${s.amount.toLocaleString()} ${cfg?.unit||''}</span> ${s.resource}
+      <span class="sync-from">${s.fromName}</span> → <span class="sync-to">${s.toName}</span>
+    </div>`;
+  }).join('') || '<div style="padding:8px 0;color:var(--text3);font-size:11px">No sync operations yet</div>';
+}
+
+function renderVectorClock() {
+  const container = document.getElementById('vclock-display');
+  container.innerHTML = Object.entries(mesh.vclock).map(([id, v]) => {
+    const n = mesh.nodes[id];
+    const color = n?.status==='online'?'var(--green)':n?.status==='degraded'?'var(--amber)':'var(--red)';
+    const shortId = PARISHES[id]?.name.split(' ').slice(-1)[0].substring(0,4) || id.substring(0,4);
+    return `<div class="vc-cell"><span class="vc-node" style="color:${color}">${shortId}:</span><span class="vc-val">${v}</span></div>`;
+  }).join('');
+}
+
+function renderEventLog() {
+  const container = document.getElementById('event-log');
+  const items = mesh.events.slice(0,60);
+  const existingCount = container.children.length;
+  if (items.length > existingCount) {
+    const newItems = items.slice(0, items.length - existingCount);
+    const frag = document.createDocumentFragment();
+    newItems.forEach(e => {
+      const div = document.createElement('div');
+      div.className = `event-item event-type-${e.type}`;
+      div.innerHTML = `<div class="event-time">${new Date(e.ts).toISOString().substring(11,19)} UTC</div>
+        <div class="event-msg">${e.msg}</div>`;
+      frag.appendChild(div);
+    });
+    container.insertBefore(frag, container.firstChild);
+    while (container.children.length > 60) container.removeChild(container.lastChild);
+  }
+}
+
+function renderAlerts() {
+  const active = mesh.alerts.filter(a=>a.active);
+  document.getElementById('no-alerts-msg').style.display = active.length?'none':'block';
+  document.getElementById('alert-list').innerHTML = active.map(a => `
+    <div class="alert-item" id="alert-${a.id}">
+      <button class="alert-resolve" onclick="resolveAlert('${a.id}')">✓ Resolve</button>
+      <div class="alert-name">${a.name}</div>
+      <div class="alert-parish">📍 ${a.parishName} · ${Math.round((Date.now()-a.ts)/1000)}s ago</div>
+    </div>`).join('');
+}
+
+function renderNodeDetail(nodeId) {
+  const n = mesh.nodes[nodeId];
+  const res = mesh.resources[nodeId];
+  const p = PARISHES[nodeId];
+  if (!n||!res) return;
+  const statusColor = n.status==='online'?'var(--green)':n.status==='degraded'?'var(--amber)':'var(--red)';
+  document.getElementById('node-detail-content').innerHTML = `
+    <div class="nd-header">
+      <div class="node-dot ${n.status}" style="width:10px;height:10px"></div>
+      <div class="nd-name">${p.name}</div>
+      <div class="nd-badge ${n.role}">${n.role}</div>
+      ${n.isLeader?'<div class="nd-badge primary">★ leader</div>':''}
+    </div>
+    <div class="nd-stats">
+      <div class="nd-stat"><div class="nd-stat-label">Status</div><div class="nd-stat-val" style="color:${statusColor}">${n.status}</div></div>
+      <div class="nd-stat"><div class="nd-stat-label">Latency</div><div class="nd-stat-val" style="color:${n.networkLatency<40?'var(--green)':n.networkLatency<100?'var(--amber)':'var(--red)'}">${Math.round(n.networkLatency)}ms</div></div>
+      <div class="nd-stat"><div class="nd-stat-label">Term</div><div class="nd-stat-val">${n.term}</div></div>
+      <div class="nd-stat"><div class="nd-stat-label">Heartbeats</div><div class="nd-stat-val">${n.heartbeatCount.toLocaleString()}</div></div>
+      <div class="nd-stat"><div class="nd-stat-label">Uptime</div><div class="nd-stat-val">${Math.floor(n.uptime/3600)}h ${Math.floor((n.uptime%3600)/60)}m</div></div>
+      <div class="nd-stat"><div class="nd-stat-label">Pending Writes</div><div class="nd-stat-val" style="color:${n.pendingWrites>10?'var(--amber)':'var(--green)'}">${n.pendingWrites}</div></div>
+      <div class="nd-stat"><div class="nd-stat-label">Population</div><div class="nd-stat-val">${p.pop.toLocaleString()}</div></div>
+      <div class="nd-stat"><div class="nd-stat-label">Coast Risk</div><div class="nd-stat-val" style="color:${p.coastalRisk==='high'?'var(--red)':p.coastalRisk==='medium'?'var(--amber)':'var(--green)'}">${p.coastalRisk}</div></div>
+    </div>
+    <div class="res-title" style="margin-bottom:8px">Resources</div>
+    ${Object.entries(RESOURCE_TYPES).map(([rt,cfg]) => {
+      const r = res[rt];
+      const pct = Math.min(100,Math.round((r.current/cfg.max)*100));
+      return `<div class="res-row">
+        <div class="res-header">
+          <div style="font-size:11px">${cfg.icon} ${cfg.label}</div>
+          <div style="font-size:10px;font-family:var(--mono);color:var(--text3)">${r.current.toLocaleString()} / ${cfg.max.toLocaleString()}</div>
+        </div>
+        <div class="res-bar-bg"><div class="res-bar ${r.trend==='critical'?'critical':r.trend==='low'?'low':'ok'}" style="width:${pct}%"></div></div>
+      </div>`;
+    }).join('')}
+    <div style="margin-top:10px;display:flex;gap:6px">
+      ${n.status==='online'
+        ? `<button class="act-btn danger" onclick="setNodeStatus('${nodeId}','offline')">Kill Node</button>
+           <button class="act-btn" onclick="setNodeStatus('${nodeId}','degraded')">Degrade</button>`
+        : `<button class="act-btn primary" onclick="setNodeStatus('${nodeId}','online')">Bring Online</button>`}
+    </div>
+    <div style="margin-top:8px">
+      <button class="act-btn danger" style="width:100%" onclick="triggerCrisisForSelected('${nodeId}')">🚨 Trigger Crisis</button>
+    </div>
+  `;
+}
+
+// ── ACTIONS ────────────────────────────────────────────
+function selectNode(id) {
+  selectedNode = id;
+  switchTab('detail');
+  renderNodeList();
+  renderResourceBars();
+  renderNodeDetail(id);
+}
+
+function logEvent(type, msg) {
+  mesh.events.unshift({ ts:Date.now(), type, msg });
+  if (mesh.events.length > 200) mesh.events.pop();
+}
+
+function setNodeStatus(id, status) {
+  const prev = mesh.nodes[id].status;
+  mesh.nodes[id].status = status;
+  if (status==='offline' && prev==='online') {
+    if (mesh.nodes[id].isLeader) electLeader(id);
+    logEvent('NODE_DOWN', `🔴 ${PARISHES[id].name} went offline — failover initiated`);
+  } else if (status==='online' && prev!=='online') {
+    mesh.nodes[id].pendingWrites = Math.floor(Math.random()*25)+5;
+    logEvent('NODE_UP', `🟢 ${PARISHES[id].name} rejoined mesh — syncing ${mesh.nodes[id].pendingWrites} pending writes`);
+  } else if (status==='degraded') {
+    logEvent('NODE_DEGRADED', `🟡 ${PARISHES[id].name} degraded — partial connectivity`);
+  }
+  render();
+}
+
+function globalRebalance() {
+  let count = 0;
+  Object.keys(mesh.resources).forEach(toId => {
+    if (mesh.nodes[toId].status!=='online') return;
+    Object.keys(RESOURCE_TYPES).forEach(rt => {
+      const cfg = RESOURCE_TYPES[rt];
+      const toRes = mesh.resources[toId][rt];
+      if (toRes.current < cfg.nominal*0.5) {
+        const donors = Object.keys(mesh.resources)
+          .filter(fId=>fId!==toId&&mesh.nodes[fId].status==='online'&&mesh.resources[fId][rt].current > cfg.nominal*1.2)
+          .sort((a,b)=>mesh.resources[b][rt].current-mesh.resources[a][rt].current);
+        if (donors.length) {
+          const amount = Math.floor((mesh.resources[donors[0]][rt].current - cfg.nominal)*0.3);
+          if (amount>100) { transferResource(donors[0], toId, rt, amount); count++; }
+        }
+      }
+    });
+  });
+  logEvent('GLOBAL_REBALANCE', `⚖ Global rebalance: ${count} transfers executed across parish mesh`);
+  render();
+}
+
+function triggerRandomCrisis() {
+  const onlineIds = Object.keys(mesh.nodes).filter(id=>mesh.nodes[id].status==='online');
+  if (!onlineIds.length) return;
+  const parish = onlineIds[Math.floor(Math.random()*onlineIds.length)];
+  const types = Object.keys(CRISIS_TYPES);
+  triggerCrisis(parish, types[Math.floor(Math.random()*types.length)]);
+  switchTab('alerts');
+  render();
+}
+
+function triggerTargetedCrisis() {
+  const parish = document.getElementById('crisis-parish-select').value;
+  const type = document.getElementById('crisis-type-select').value;
+  if (!parish) { alert('Select a parish first'); return; }
+  triggerCrisis(parish, type);
+  switchTab('alerts');
+  render();
+}
+
+function triggerCrisisForSelected(nodeId) {
+  const types = Object.keys(CRISIS_TYPES);
+  triggerCrisis(nodeId, types[Math.floor(Math.random()*types.length)]);
+  switchTab('alerts');
+  render();
+}
+
+function resolveAlert(id) {
+  const alert = mesh.alerts.find(a=>a.id==id);
+  if (alert) {
+    alert.active = false;
+    logEvent('CRISIS_RESOLVED', `✅ Crisis resolved: ${alert.name} at ${alert.parishName}`);
+    render();
+  }
+}
+
+function openTransferModal() { document.getElementById('transfer-modal').classList.add('open'); }
+function closeTransferModal() { document.getElementById('transfer-modal').classList.remove('open'); }
+
+function executeTransfer() {
+  const from = document.getElementById('tm-from').value;
+  const to = document.getElementById('tm-to').value;
+  const rt = document.getElementById('tm-resource').value;
+  const amount = parseInt(document.getElementById('tm-amount').value);
+  if (from===to) { alert('Source and destination must differ'); return; }
+  if (mesh.nodes[from].status!=='online') { alert(`${PARISHES[from].name} is offline`); return; }
+  const actual = transferResource(from, to, rt, amount);
+  if (actual) {
+    logEvent('MANUAL_TRANSFER', `📦 Manual: ${actual.toLocaleString()} ${RESOURCE_TYPES[rt].unit} of ${rt} from ${PARISHES[from].name} → ${PARISHES[to].name}`);
+    closeTransferModal();
+    render();
+  } else {
+    alert('Transfer failed — insufficient resources');
+  }
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    t.classList.toggle('active', ['events','alerts','detail','schema'][i]===tab);
+  });
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById(`tab-${tab}`).classList.add('active');
+}
+
+function updateClock() {
+  document.getElementById('clock').textContent = new Date().toISOString().substring(11,19)+' UTC';
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+initMesh();
+simulationTick();
+setInterval(simulationTick, 5000);
+</script>
+</body>
+</html>

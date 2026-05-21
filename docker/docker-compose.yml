@@ -1,0 +1,313 @@
+version: '3.9'
+
+# IslandPulse — Jamaica Emergency Resource Mesh
+# Simulates independent parish nodes as isolated Docker containers
+# Each container = one parish = one independent node in the distributed mesh
+
+services:
+
+  # ─────────────────────────────────────────────
+  # PRIMARY COORDINATOR — Kingston (Leader Node)
+  # Handles write quorum, leader election, pub/sub
+  # ─────────────────────────────────────────────
+  islandpulse-coordinator:
+    build: ./backend
+    container_name: islandpulse-kingston-primary
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ID=kingston
+      - NODE_ROLE=primary
+      - IS_LEADER=true
+      - REDIS_URL=redis://islandpulse-redis:6379
+      - MESH_PORT=3001
+      - QUORUM_SIZE=8
+    depends_on:
+      - islandpulse-redis
+    networks:
+      - parish-mesh
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    labels:
+      - "islandpulse.parish=Kingston"
+      - "islandpulse.role=primary"
+      - "islandpulse.region=southeast"
+
+  # ─────────────────────────────────────────────
+  # REDIS — Pub/Sub Backbone
+  # Keeps every node synced even if primary drops
+  # Enables split-brain detection and CRDT merges
+  # ─────────────────────────────────────────────
+  islandpulse-redis:
+    image: redis:7-alpine
+    container_name: islandpulse-redis
+    ports:
+      - "6379:6379"
+    command: >
+      redis-server
+      --save 60 1
+      --save 300 100
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --appendonly yes
+      --loglevel warning
+    volumes:
+      - redis-data:/data
+    networks:
+      - parish-mesh
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    labels:
+      - "islandpulse.component=cache"
+      - "islandpulse.role=pubsub-backbone"
+
+  # ─────────────────────────────────────────────
+  # PARISH REPLICA NODES
+  # Each runs as an independent process
+  # Can survive without the primary (offline-first)
+  # ─────────────────────────────────────────────
+
+  node-st-andrew:
+    build: ./backend
+    container_name: islandpulse-st-andrew
+    environment:
+      - NODE_ID=stAndrew
+      - NODE_ROLE=replica
+      - REDIS_URL=redis://islandpulse-redis:6379
+      - PRIMARY_URL=http://islandpulse-coordinator:3001
+      - MESH_PORT=3002
+    depends_on: [islandpulse-redis, islandpulse-coordinator]
+    networks: [parish-mesh]
+    restart: unless-stopped
+    labels:
+      - "islandpulse.parish=St. Andrew"
+      - "islandpulse.region=southeast"
+
+  node-st-catherine:
+    build: ./backend
+    container_name: islandpulse-st-catherine
+    environment:
+      - NODE_ID=stCatherine
+      - NODE_ROLE=replica
+      - REDIS_URL=redis://islandpulse-redis:6379
+      - PRIMARY_URL=http://islandpulse-coordinator:3001
+      - MESH_PORT=3003
+    depends_on: [islandpulse-redis, islandpulse-coordinator]
+    networks: [parish-mesh]
+    restart: unless-stopped
+    labels:
+      - "islandpulse.parish=St. Catherine"
+      - "islandpulse.region=southeast"
+
+  node-clarendon:
+    build: ./backend
+    container_name: islandpulse-clarendon
+    environment:
+      - NODE_ID=clarendon
+      - NODE_ROLE=replica
+      - REDIS_URL=redis://islandpulse-redis:6379
+      - PRIMARY_URL=http://islandpulse-coordinator:3001
+      - MESH_PORT=3004
+    depends_on: [islandpulse-redis]
+    networks: [parish-mesh]
+    restart: unless-stopped
+    labels:
+      - "islandpulse.parish=Clarendon"
+      - "islandpulse.region=central"
+
+  node-manchester:
+    build: ./backend
+    container_name: islandpulse-manchester
+    environment:
+      - NODE_ID=manchester
+      - NODE_ROLE=replica
+      - REDIS_URL=redis://islandpulse-redis:6379
+      - PRIMARY_URL=http://islandpulse-coordinator:3001
+      - MESH_PORT=3005
+    depends_on: [islandpulse-redis]
+    networks: [parish-mesh]
+    restart: unless-stopped
+    labels:
+      - "islandpulse.parish=Manchester"
+      - "islandpulse.region=central"
+
+  node-st-elizabeth:
+    build: ./backend
+    container_name: islandpulse-st-elizabeth
+    environment:
+      - NODE_ID=stElizabeth
+      - NODE_ROLE=replica
+      - REDIS_URL=redis://islandpulse-redis:6379
+      - PRIMARY_URL=http://islandpulse-coordinator:3001
+      - MESH_PORT=3006
+    depends_on: [islandpulse-redis]
+    networks: [parish-mesh]
+    restart: unless-stopped
+    labels:
+      - "islandpulse.parish=St. Elizabeth"
+      - "islandpulse.region=southwest"
+
+  node-westmoreland:
+    build: ./backend
+    container_name: islandpulse-westmoreland
+    environment:
+      - NODE_ID=westmoreland
+      - NODE_ROLE=replica
+      - REDIS_URL=redis://islandpulse-redis:6379
+      - PRIMARY_URL=http://islandpulse-coordinator:3001
+      - MESH_PORT=3007
+    depends_on: [islandpulse-redis]
+    networks: [parish-mesh]
+    restart: unless-stopped
+    labels:
+      - "islandpulse.parish=Westmoreland"
+      - "islandpulse.region=west"
+
+  node-hanover:
+    build: ./backend
+    container_name: islandpulse-hanover
+    environment:
+      - NODE_ID=hanover
+      - NODE_ROLE=replica
+      - REDIS_URL=redis://islandpulse-redis:6379
+      - PRIMARY_URL=http://islandpulse-coordinator:3001
+      - MESH_PORT=3008
+    depends_on: [islandpulse-redis]
+    networks: [parish-mesh]
+    restart: unless-stopped
+    labels:
+      - "islandpulse.parish=Hanover"
+      - "islandpulse.region=west"
+
+  node-st-james:
+    build: ./backend
+    container_name: islandpulse-st-james
+    environment:
+      - NODE_ID=stJames
+      - NODE_ROLE=replica
+      - REDIS_URL=redis://islandpulse-redis:6379
+      - PRIMARY_URL=http://islandpulse-coordinator:3001
+      - MESH_PORT=3009
+    depends_on: [islandpulse-redis]
+    networks: [parish-mesh]
+    restart: unless-stopped
+    labels:
+      - "islandpulse.parish=St. James"
+      - "islandpulse.region=northwest"
+
+  node-trelawny:
+    build: ./backend
+    container_name: islandpulse-trelawny
+    environment:
+      - NODE_ID=trelawny
+      - NODE_ROLE=replica
+      - REDIS_URL=redis://islandpulse-redis:6379
+      - PRIMARY_URL=http://islandpulse-coordinator:3001
+      - MESH_PORT=3010
+    depends_on: [islandpulse-redis]
+    networks: [parish-mesh]
+    restart: unless-stopped
+    labels:
+      - "islandpulse.parish=Trelawny"
+      - "islandpulse.region=north"
+
+  node-st-ann:
+    build: ./backend
+    container_name: islandpulse-st-ann
+    environment:
+      - NODE_ID=stAnn
+      - NODE_ROLE=replica
+      - REDIS_URL=redis://islandpulse-redis:6379
+      - PRIMARY_URL=http://islandpulse-coordinator:3001
+      - MESH_PORT=3011
+    depends_on: [islandpulse-redis]
+    networks: [parish-mesh]
+    restart: unless-stopped
+    labels:
+      - "islandpulse.parish=St. Ann"
+      - "islandpulse.region=north"
+
+  node-st-mary:
+    build: ./backend
+    container_name: islandpulse-st-mary
+    environment:
+      - NODE_ID=stMary
+      - NODE_ROLE=replica
+      - REDIS_URL=redis://islandpulse-redis:6379
+      - PRIMARY_URL=http://islandpulse-coordinator:3001
+      - MESH_PORT=3012
+    depends_on: [islandpulse-redis]
+    networks: [parish-mesh]
+    restart: unless-stopped
+    labels:
+      - "islandpulse.parish=St. Mary"
+      - "islandpulse.region=northeast"
+
+  node-portland:
+    build: ./backend
+    container_name: islandpulse-portland
+    environment:
+      - NODE_ID=portland
+      - NODE_ROLE=replica
+      - REDIS_URL=redis://islandpulse-redis:6379
+      - PRIMARY_URL=http://islandpulse-coordinator:3001
+      - MESH_PORT=3013
+    depends_on: [islandpulse-redis]
+    networks: [parish-mesh]
+    restart: unless-stopped
+    labels:
+      - "islandpulse.parish=Portland"
+      - "islandpulse.region=northeast"
+
+  node-st-thomas:
+    build: ./backend
+    container_name: islandpulse-st-thomas
+    environment:
+      - NODE_ID=stThomas
+      - NODE_ROLE=replica
+      - REDIS_URL=redis://islandpulse-redis:6379
+      - PRIMARY_URL=http://islandpulse-coordinator:3001
+      - MESH_PORT=3014
+    depends_on: [islandpulse-redis]
+    networks: [parish-mesh]
+    restart: unless-stopped
+    labels:
+      - "islandpulse.parish=St. Thomas"
+      - "islandpulse.region=east"
+
+  # ─────────────────────────────────────────────
+  # FRONTEND — Nginx static server
+  # ─────────────────────────────────────────────
+  islandpulse-ui:
+    image: nginx:alpine
+    container_name: islandpulse-ui
+    ports:
+      - "8080:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on: [islandpulse-coordinator]
+    networks: [parish-mesh]
+    restart: unless-stopped
+    labels:
+      - "islandpulse.component=frontend"
+
+networks:
+  parish-mesh:
+    driver: bridge
+    name: islandpulse-parish-mesh
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+volumes:
+  redis-data:
+    name: islandpulse-redis-data
